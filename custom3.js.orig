@@ -1,0 +1,713 @@
+PCell.prototype.CustomizeCK = function()
+{
+	// L'oggetto Conf è l'oggetto contenente la configurazione di CKEditor
+	var config = new Object();
+
+			config.extraPlugins = 'switchbar,omissis,giustificadefoult,custompaste';
+			//config.extraPlugins = 'switchbar,omissis,giustifica';
+			config.switchBarSimple = 'Basic';
+			config.switchBarReach = 'Full';
+			config.switchBarDefault = 'Basic';
+			config.tagOmissis = 'span';
+			config.tagGiustifica = 'div';
+			config.switchBarSimpleIcon = 'maximise.gif';
+			config.switchBarReachIcon = 'minimise.gif';
+			//config.forcePasteAsPlainText = true;
+			config.resize_enabled = false;
+			//config.pasteFromWordCleanupFile = 'cleanword';
+			
+	
+		//Configurazioni Toolbar ..... tra parentesi quadre i pulsanti da ragruppare in una sezione, con '/' si va a capo e con '-' si lascia uno spazio
+			
+
+			// Configurazione personalizzata dei pulsanti presenti nella toolbar
+			config.toolbar_Basic =
+			[
+				['Source','Cut','Copy','Paste','PasteText'],
+				['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+				['SpecialChar'],
+				['Bold','Italic','Strike','Underline','Omissis'],
+				//['Bold','Italic','Strike','Underline','Giustifica','Omissis'],
+				//['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+				['NumberedList','BulletedList']
+			];
+			
+			// Configurazione massima dei pulsanti presenti nella toolbar
+			config.toolbar_Full =
+			[
+				['Source','-','NewPage','Preview'],
+				['Cut','Copy','Paste','PasteText','PasteFromWord','-','Scayt'],
+				['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+				['Image','Table','HorizontalRule','SpecialChar','PageBreak'],
+				['Bold','Italic','Strike','Underline','Omissis'],
+				//['Bold','Italic','Strike','Underline','Giustifica','Omissis'],
+				['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+				['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
+				['Link','Unlink','Anchor'],
+				['Maximize','-','About'],
+				['TextColor','BGColor'],
+				['Styles','Format','Font','FontSize'],
+				['SwitchBar']
+			];
+			
+			
+			
+			config.coreStyles_bold = { element : 'b', overrides : 'strong' };
+			config.coreStyles_italic = { element : 'i', overrides : 'em' };
+			config.tabSpaces = 4;
+			//config.basicEntities = false;
+			//config.docType = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">';			
+			config.enterMode = CKEDITOR.ENTER_BR;
+			//config.autoParagraph = false;
+			//config.fullPage = true;
+			config.bodyId = 'testo_lettera';
+			
+
+			
+			
+		//Scelta cinfigurazione toolbar
+			//config.toolbar = 'Full';
+			config.toolbar = 'Basic';
+		
+		//è possibile associare un CSS alla parte editabile
+			config.contentsCss = 'ckeditor/css/mysitestyles.css'; 
+		
+		//è possibile definire i colori che si possono utilizzare nella parte editabile 	
+			config.colorButton_colors = '00923E,F8C100,28166F';
+			config.colorButton_enableMore = false;
+		
+		//è possibile definire i font che è possibile utilizzare	
+			config.font_names = 'Arial;Times New Roman;Verdana';
+		//è possibile assegnare il font di defoult
+			config.font_defaultLabel = 'Verdana';
+		
+		//è possibile definire le dimensioni dei font da utilizzare
+			config.fontSize_sizes = '12/12px;16/16px;24/24px;48/48px;';
+		//è possibile definire la dimensione di defoult del font
+			config.fontSize_defaultLabel = '12px';
+		
+		//è possibile collassare o meno la toolbar	
+			config.toolbarCanCollapse = true;
+		
+		//è possibile rimuovere le informazioni sul percorso degli elementi HTML
+			config.removePlugins = 'elementspath';
+		
+		//è possibile definire il colore di base dell'interfaccia utente
+			config.uiColor = '#DEE7F6';
+
+		//è possibile lanciare l'editor con la toolbar collassata	
+			config.toolbarStartupExpanded = true;
+		
+		//lista di templates da proporre a chi edita
+			//config.templates_files =
+			//	[
+			//		'/editor_templates/site_default.js',
+			//		'http://www.example.com/user_templates.js
+			//	];
+
+		// non ho capito a cosa servono
+			//config.dialog_backgroundCoverOpacity = 0.0;
+			//config.dialog_buttonsOrder = 'ltr';
+			
+if (RD3_Glb.IsFirefox())
+{
+  // Dimensiono prendendo l'altezza del campo - altezza toolbar (su 3 righe, su 2 righe e' circa 115)
+  var h = this.ParentField.GetValueHeight(this.InList) - 50; 
+  h = (RD3_Glb.IsSafari()||RD3_Glb.IsChrome()) ? h-5 : h;
+  h = h<50 ? 50 : h;
+  config.height = h+"px";
+  //
+  // Disabilito il resize del CKEDITOR interno
+  config.resize_enabled = false;
+ } 
+			
+	return config;
+}
+
+// ******************************************
+// Surroga l'evento di change che non viene lanciato
+// quando clicco su un immagine: vedi anche DDManager.OnMouseDown
+// ******************************************
+KBManager.prototype.SurrogateChangeEvent= function()
+{
+  if (this.ActiveElement)
+  {
+    var obj = this.GetObject(this.ActiveElement, true);
+    //
+    // Il Blur forza la perdita del fuoco: quindi lancia l'onchange se deve.. per sicureppa poi lo gestiamo
+    // anche noi da software..
+    if (this.ActiveElement)
+    {
+    	try
+    	{
+    		this.ActiveElement.blur();
+    	}
+    	catch(ex) {}
+    }
+    //
+    if (obj && obj.OnChange)
+    {
+      return RD3_DesktopManager.CallEventHandler(obj.Identifier, "OnChange", this.ActiveElement);
+    }
+  }
+}
+
+
+
+TabbedView.prototype.SetHiddenTabs= function(value) 
+{
+	if (value!=undefined)
+		this.HiddenTabs = value;
+	//
+	if (this.Realized)
+	{
+	  if (this.HiddenTabs)
+	  {
+		  this.ToolbarBox.style.display = "none";
+		  //
+		  // Se nascondo le linguette tolgo il margine sopra, in modo che non ci siano scalini con frame a destra o sinistra..
+		  this.ContentBox.style.marginTop = "0px";
+		}
+		else
+		{
+		  this.ToolbarBox.style.display = "";
+		  this.ContentBox.style.marginTop = "0px"; // MODIFICA
+		}
+	}
+}
+/* Per la versione di inde 10.1
+WebForm.prototype.RealizeMessages = function()
+{ 
+  // Se non sono stata ancora realizzata, lascio perdere
+  if (!this.Realized)
+    return;
+  //
+  // Se non mostro messaggi, non realizzo niente!
+  if (!this.ShowMessages())
+  {
+    if (RD3_Glb.IsIE())
+	this.MessagesBox.style.display = "none";
+    return;
+  }
+  if (RD3_Glb.IsIE())
+	this.MessagesBox.style.display = "";
+  //
+  var n = this.Messages.length;
+  for (var i=0; i<n; i++)
+  {
+    if (!this.Messages[i].Realized)
+      this.Messages[i].Realize(this.MessagesBox);
+  }
+  //
+  // Rimuovo i messaggi temporanei
+  for (var i=n-1; i>=0; i--)
+  {
+    if (this.Messages[i].Temporary)
+    {
+      // Se il messaggio riguarda un'altra richiesta lo elimino
+      if (this.Messages[i].Request != RD3_DesktopManager.CurrentRequest)
+      {
+        if (i==0)
+        {
+          // Sono l'ultimo messaggio temporaneo.. devo verificare se ci sono altri messaggi dopo di me..
+          var l = this.Messages.length;
+          if (l==1 && this.HasInfoMessages())
+          {
+            // Non ci sono altri messaggi ma l'altezza rimane fissa: 
+            // devo fare il fading e non sparire di colpo
+            fx = new GFX("lastmessage", true, this.Messages[i], this.Animating, null, this.LastMessageAnimDef);
+            RD3_GFXManager.AddEffect(fx);
+            //
+            // Tolgo il messaggio dall'array: alla fine del fading verra' fatto l'unrealize..
+            this.Messages.splice(i,1);
+          }
+          else
+          {
+            this.Messages[i].Unrealize();
+            this.Messages.splice(i,1);
+          }
+        }
+        else
+        {
+          this.Messages[i].Unrealize();
+          this.Messages.splice(i,1);
+        }
+      }
+    }
+  }
+  //
+  // Regolo l'altezza della messagesbox
+  // Calcolo la dimensione dei messaggi
+  n = this.Messages.length;
+  var newheight = 0;
+  for (var i=0; i<n; i++)
+  {
+    newheight += this.Messages[i].MyBox.offsetHeight;
+    //
+    // Mostro al massimo 3 messaggi insieme, dopo devono apparire le scrollbar (i messaggi partono da 0)
+    if (i >= 2)
+      break;
+  }
+  //
+  // Decido la direzione dell'animazione
+  var dir = true;  
+  if (n==0 && this.HasInfoMessages())
+  {
+    newheight = RD3_ClientParams.MinMessagesBoxHeight;
+  }
+  //
+  // Calcolo la vecchia altezza (togliendo il bordo inferiore)
+  var oldh = this.MessagesBox.offsetHeight;
+  oldh = oldh<=0 ? 0 : oldh-1;
+  dir = oldh<=newheight;
+  //
+  if (newheight != oldh && !this.Animating)
+  {
+    // Se cambia la dimensione della barra avvio l'animazione relativa al fold dei messaggi
+    fx = new GFX("message", dir, this, this.Animating, null, this.MessageAnimDef);
+    fx.NewHeight = newheight;
+    fx.OldHeight = oldh;
+    RD3_GFXManager.AddEffect(fx);
+  }
+  //
+  // Se sto animando imposto direttamente la nuova dimensione..
+  if (this.Animating)
+  {
+    this.MessagesBox.style.height = newheight + "px";
+    //
+    // Se e' alta 0 devo togliere anche il bordo, se non c'e' una riga di troppo..
+    this.MessagesBox.style.borderBottomWidth = newheight==0 ? "0px" : "";
+  }
+}
+*/
+
+// ********************************************************************************
+//  Realizzo tutti i messaggi non ancora realizzati
+// ********************************************************************************
+WebForm.prototype.RealizeMessages = function()
+{ 
+  // Se non sono stata ancora realizzata, lascio perdere
+  if (!this.Realized)
+    return;
+	
+	
+	
+  //
+  // Se non mostro messaggi, non realizzo niente!
+ if (!this.ShowMessages())
+  {
+    if (RD3_Glb.IsIE())
+	this.MessagesBox.style.display = "none";
+    return;
+  }
+  if (RD3_Glb.IsIE())
+	this.MessagesBox.style.display = "";
+  //
+  var n = this.Messages.length;
+  for (var i=0; i<n; i++)
+  {
+    if (!this.Messages[i].Realized)
+      this.Messages[i].Realize(this.MessagesBox);
+  }
+  //
+  // Rimuovo i messaggi temporanei
+  for (var i=n-1; i>=0; i--)
+  {
+    if (this.Messages[i].Temporary)
+    {
+      // Se il messaggio riguarda un'altra richiesta lo elimino
+      if (this.Messages[i].Request != RD3_DesktopManager.CurrentRequest)
+      {
+        if (i==0)
+        {
+          // Sono l'ultimo messaggio temporaneo.. devo verificare se ci sono altri messaggi dopo di me..
+          var l = this.Messages.length;
+          if (l==1 && this.HasInfoMessages())
+          {
+            // Non ci sono altri messaggi ma l'altezza rimane fissa: 
+            // devo fare il fading e non sparire di colpo
+            fx = new GFX("lastmessage", true, this.Messages[i], this.Animating, null, this.LastMessageAnimDef);
+            RD3_GFXManager.AddEffect(fx);
+            //
+            // Tolgo il messaggio dall'array: alla fine del fading verra' fatto l'unrealize..
+            this.Messages.splice(i,1);
+          }
+          else
+          {
+            this.Messages[i].Unrealize();
+            this.Messages.splice(i,1);
+          }
+        }
+        else
+        {
+          this.Messages[i].Unrealize();
+          this.Messages.splice(i,1);
+        }
+      }
+    }
+  }
+  //
+  // Regolo l'altezza della messagesbox
+  // Calcolo la dimensione dei messaggi
+  n = this.Messages.length;
+  var newheight = 0;
+  for (var i=0; i<n; i++)
+  {
+    newheight += this.Messages[i].MyBox.offsetHeight;
+    //
+    // Mostro al massimo 3 messaggi insieme, dopo devono apparire le scrollbar (i messaggi partono da 0)
+    if (i >= 2)
+      break;
+  }
+  //
+  // Decido la direzione dell'animazione
+  var dir = true;  
+  if (n==0 && this.HasInfoMessages())
+  {
+    newheight = RD3_ClientParams.MinMessagesBoxHeight;
+  }
+  //
+  // Calcolo la vecchia altezza (togliendo il bordo inferiore)
+  var oldh = this.MessagesBox.offsetHeight;
+  oldh = oldh<=0 ? 0 : oldh-1;
+  dir = oldh<=newheight;
+  //
+  if (newheight != oldh && !this.Animating)
+  {
+    // Se cambia la dimensione della barra avvio l'animazione relativa al fold dei messaggi
+    fx = new GFX("message", dir, this, this.Animating, null, this.MessageAnimDef);
+    fx.NewHeight = newheight;
+    fx.OldHeight = oldh;
+    RD3_GFXManager.AddEffect(fx);
+  }
+  //
+  // Se sto animando imposto direttamente la nuova dimensione..
+  if (this.Animating)
+  {
+    this.MessagesBox.style.height = newheight + "px";
+    //
+    // Se e' alta 0 devo togliere anche il bordo, se non c'e' una riga di troppo..
+    this.MessagesBox.style.borderBottomWidth = newheight==0 ? "0px" : "";
+  }
+}
+
+
+
+
+// **************************************************************
+// PATCH 24 Collasso gruppi
+// **************************************************************
+PGroup.prototype.LoadProperties = function(node)
+{
+  //************************************
+  var val = node.getAttribute("col");
+  if (val=="0" || val=="1")
+  {
+    node.removeAttribute("col");
+    node.setAttribute("col", val);
+  }
+  //*************************************
+  //
+  // Ciclo su tutti gli attributi del nodo
+  var attrlist = node.attributes;
+  var n = attrlist.length;
+  for (var i=0; i<n; i++)
+  {
+    var attrnode = attrlist.item(i);
+    var nome = attrnode.nodeName;
+    var valore = attrnode.nodeValue;
+    //
+    switch(nome)
+    {
+      case "flg": this.SetFlags(parseInt(attrnode.nodeValue)); break;
+      case "img": this.SetImage(attrnode.nodeValue); break;
+      case "cap": this.SetHeader(attrnode.nodeValue); break;
+      case "tip": this.SetTooltip(attrnode.nodeValue); break;
+      case "lle": this.SetListLeft(parseInt(attrnode.nodeValue)); break;
+      case "lto": this.SetListTop(parseInt(attrnode.nodeValue)); break;
+      case "lwi": this.SetListWidth(parseInt(attrnode.nodeValue)); break;
+      case "lhe": this.SetListHeight(parseInt(attrnode.nodeValue)); break;
+      case "fle": this.SetFormLeft(parseInt(attrnode.nodeValue)); break;
+      case "fto": this.SetFormTop(parseInt(attrnode.nodeValue)); break;
+      case "fwi": this.SetFormWidth(parseInt(attrnode.nodeValue)); break;
+      case "fhe": this.SetFormHeight(parseInt(attrnode.nodeValue)); break;
+      case "pag": this.SetPage(parseInt(attrnode.nodeValue)); break;
+      case "lhp": this.SetListHeaderPosition(parseInt(attrnode.nodeValue)); break;
+      case "fhp": this.SetFormHeaderPosition(parseInt(attrnode.nodeValue)); break;
+      case "hhe": this.SetHeaderHeight(parseInt(attrnode.nodeValue)); break;
+      case "hwi": this.SetHeaderWidth(parseInt(attrnode.nodeValue)); break;
+      case "inl": this.SetInlist(attrnode.nodeValue == "1"); break;
+      case "sty": this.SetVisualStyle(parseInt(attrnode.nodeValue)); break;
+      case "clp": this.SetCollapsible(valore=="1"); break;
+      case "col": this.SetCollapsed(valore=="1"); break;
+      case "mfl": this.SetListMovedFields(valore=="1"); break;
+      case "mff": this.SetFormMovedFields(valore=="1"); break;
+      //
+      case "cla": this.CollapseAnimDef = valore; break;
+      //
+      case "id": 
+        this.Identifier = valore;
+        RD3_DesktopManager.ObjectMap.add(valore, this);
+        
+      break;
+    }
+  }
+}
+
+// ****************************************************************
+// Crea un Flash Uploader
+// ****************************************************************
+PField.prototype.CreateFlashUploader = function()
+{
+  // Creo il contenitore che verra' rimpiazzato dal Flash
+  var placeholder = document.createElement("div");
+  //
+  // Attacco momentaneamente l'immagine al DOM perche' per creare il Flash
+  // vengono usati innerHTML e getElementById per recuperare l'object
+  document.body.appendChild(placeholder);
+  //
+  var settings =
+  {
+    flash_url : "swfupload/swfupload.swf",
+    file_size_limit : this.MaxUploadSize + " B",
+    file_upload_limit : this.MaxUploadFiles,
+    file_types : this.UploadExtensions,
+    //
+    // Configuro il bottone
+    button_placeholder: placeholder,
+    button_cursor : SWFUpload.CURSOR.HAND,
+    button_window_mode : SWFUpload.WINDOW_MODE.TRANSPARENT,
+    //
+    // Imposto gli eventi
+    swfupload_loaded_handler     : SWFUpload_OnLoaded,
+    file_dialog_start_handler    : SWFUpload_OnDialogStart,
+    file_queued_handler          : SWFUpload_OnFileQueued,
+    file_queue_error_handler     : SWFUpload_OnFileQueueError,
+    file_dialog_complete_handler : SWFUpload_OnFileDialogComplete,
+    upload_start_handler         : SWFUpload_OnUploadStart,
+    upload_progress_handler      : SWFUpload_OnUploadProgress,
+    upload_error_handler         : SWFUpload_OnUploadError,
+    upload_success_handler       : SWFUpload_OnUploadSuccess,
+    upload_complete_handler      : SWFUpload_OnUploadComplete
+  };
+  //
+  var uploadUrl = window.location.href.substring(0, window.location.href.length - window.location.search.length);
+  uploadUrl += "?WCI=" + (this.MultiUpload ? "IWFiles" : "IWUpload");
+  //
+  if (this.MultiUpload)
+    uploadUrl += "&WCE=" + this.ParentPanel.WebForm.Identifier;
+  else
+    uploadUrl += "&WCE=" + this.Identifier;
+  //
+  uploadUrl += "&SESSIONID=" + RD3_DesktopManager.WebEntryPoint.SessionID;
+  //
+  settings.upload_url = uploadUrl;
+  //
+  var appUrl = window.location.href.substring(0,window.location.href.lastIndexOf("/")+1);
+  if (this.MultiUpload)
+  {
+    settings.button_image_url = appUrl + "images/find_sprite.gif";
+    settings.button_action = SWFUpload.BUTTON_ACTION.SELECT_FILES;
+    //
+    if (RD3_ServerParams.Theme == "seattle")
+    {
+      settings.button_width = "22";
+      settings.button_height = "22";
+    }
+    else
+    {
+      settings.button_width = "26";
+      settings.button_height = "28";
+    }
+  }
+  else
+  {
+    settings.button_image_url = appUrl + "images/upload_sprite.gif";
+    settings.button_action = SWFUpload.BUTTON_ACTION.SELECT_FILE;
+    settings.button_width = "18";
+    settings.button_height = "18";
+  }
+  //
+  if (this.UploadDescription.length>0)
+    settings.file_types_description = this.UploadDescription;
+  //
+  // Creo il Flash
+  FlashUploader = new SWFUpload(settings);
+  FlashUploader.ParentField = this;
+  return FlashUploader;
+}
+
+
+
+// ********************************************************************************
+// PATCH 26 - NPQ 2096 - VERSIONE 10.1 - 10.5
+// ********************************************************************************
+
+PGroup.prototype.FindObjectsUnderMe = function(flColl)
+{
+  this.MyFields = new Array();
+  this.FieldsUnderMe = new Array();
+  //
+  var pan = this.ParentPanel;
+  var n = pan.Fields.length;
+  //
+  for (var i=0; i<n; i++)
+  {
+    var fld = pan.Fields[i];
+    //
+    // ****************************
+    if (fld.Page != this.Page)
+      continue;
+    // ****************************
+    //
+    var o = (fld.Group ? fld.Group : fld);
+    if (pan.PanelMode == RD3_Glb.PANEL_LIST && fld.InList && !fld.ListList)
+    {
+      // Se il campo fa parte del gruppo
+      if (fld.Group == this)
+      {
+        this.MyFields.push(fld);
+      }
+      else
+      {
+        // Se sta sotto del gruppo e non sporge ne a sinistra ne a destra del gruppo
+        var h = (flColl ? 0 : this.ListHeight);
+        if ((this.ListTop + h <= o.ListTop) && (this.ListLeft <= o.ListLeft) && (this.ListLeft + this.ListWidth >= o.ListLeft + o.ListWidth))
+        {
+          this.FieldsUnderMe.push(fld);
+        }
+      }
+    }
+    else if (pan.PanelMode == RD3_Glb.PANEL_FORM && fld.InForm)
+    {
+      // Se il campo fa parte del gruppo
+      if (fld.Group == this)
+      {
+        this.MyFields.push(fld);
+      }
+      else
+      {
+        // Se sta sotto del gruppo e non sporge ne a sinistra ne a destra del gruppo
+        var h = (flColl ? 0 : this.FormHeight);
+        if ((this.FormTop + h <= o.FormTop) && (this.FormLeft <= o.FormLeft) && (this.FormLeft + this.FormWidth >= o.FormLeft + o.FormWidth))
+        {
+          this.FieldsUnderMe.push(fld);
+        }
+      }
+    }
+  }
+}
+
+
+// *********************************************************
+// Imposta la proprieta' Collapsed
+// *********************************************************
+PGroup.prototype.SetCollapsed = function(value, evento) 
+{
+  var old = this.Collapsed;
+  //
+  if (value!=undefined)
+    this.Collapsed = value;
+  //
+  if (this.Realized && (old!=this.Collapsed || value==undefined))
+  {
+    var LayoutList = (this.ParentPanel.PanelMode == RD3_Glb.PANEL_LIST);
+    //
+    // Aggiorno l'immagine corretta per il pulsante collapse
+    var imgSrc = RD3_Glb.GetImgSrc("images/gr" + (this.Collapsed ? "xp" : "cl") +".gif");
+    if (LayoutList && this.ListCollapseButton)
+      if (!RD3_Glb.IsMobile()) this.ListCollapseButton.src = imgSrc;
+    if (!LayoutList && this.FormCollapseButton)
+      if (!RD3_Glb.IsMobile()) this.FormCollapseButton.src = imgSrc;
+    //
+    // Decido se devo spostare i campi:
+    var MoveFields = true;
+    //
+    // Se l'evento viene dal server controllo che i campi non siano gia' stati spostati
+    if (!evento)
+      MoveFields = !(LayoutList ? this.ListMovedFields : this.FormMovedFields);
+    //
+    // Controllo se nel layout e' cambiato Collapsed
+    var WasCollapsed = ((LayoutList ? this.WasLCollapsed : this.WasFCollapsed) == true);
+    if (MoveFields && value == undefined)
+    {
+      if (this.Collapsed != WasCollapsed)
+        this.CalcLayout();
+      else
+        MoveFields = false;
+    }
+    //
+    // Cerco i miei campi e quelli sotto di me
+    this.FindObjectsUnderMe(WasCollapsed);
+    //
+    // Mi memorizzo Collapsed per il layout corrente
+    if (LayoutList)
+      this.WasLCollapsed = this.Collapsed;
+    else
+      this.WasFCollapsed = this.Collapsed;
+    //
+    // Ora, posso spostare i campi
+    if (MoveFields)
+    {
+      // Calcolo di quanto devo muovere gruppo e campi sottostanti
+      var deltaH = (LayoutList ? this.ListHeight : this.FormHeight);
+      if (this.Collapsed)
+        deltaH = -deltaH;
+      //
+      // Notifico gli eventi degli spostamenti dei campi sotto di me
+      // Gli spostamenti reali verranno fatti dall'animazione
+      n = this.FieldsUnderMe.length;
+      for (var i=0; i<n; i++)
+      {
+        var fld = this.FieldsUnderMe[i];
+        if (LayoutList)
+        {
+          var ev = new IDEvent("resize", fld.Identifier, evento, RD3_Glb.EVENT_SERVERSIDE, "list", fld.ListWidth, fld.ListHeight, fld.ListLeft, fld.ListTop + deltaH);
+        }
+        else
+        {
+          var ev = new IDEvent("resize", fld.Identifier, evento, RD3_Glb.EVENT_SERVERSIDE, "form", fld.FormWidth, fld.FormHeight, fld.FormLeft, fld.FormTop + deltaH);
+        }
+      }
+    }
+    //
+
+
+
+// INIZIO CORREZIONE Assistenza 001269-2011
+
+    // Notifico l'evento di cambio Collapsed avvenuto
+    // Se il server e' gia' allineato l'evento glielo mando in differita
+    // perche' dovra' comunque essere informato del fatto che ho spostato i campi
+    var evt = (old == this.Collapsed ? RD3_Glb.EVENT_DEFERRED : RD3_Glb.EVENT_ACTIVE);
+  	var ev = new IDEvent("grpcol", this.Identifier, evento, evt, !this.Collapsed ? "exp" : "col");
+
+// FINE CORREZIONE Assistenza 001269-2011
+
+
+
+    //
+    // Imposto l'animazione, saltandola se non ho un valore (sono dentro la realize)
+    fx = new GFX("group", this.Collapsed, this, (value==undefined) || this.ParentPanel.WebForm.Animating || !MoveFields, null, this.CollapseAnimDef);
+    fx.Immediate = true;
+    //
+    // Comunico all'animazione se deve spostare i campi
+    fx.MoveFields = MoveFields;
+    //
+    RD3_GFXManager.AddEffect(fx);
+    //
+    // Se mi sono espanso aggiorno i miei campi
+    if (old != this.Collapsed && !this.Collapsed)
+    {
+      var n = this.ParentPanel.Fields.length;
+      for (var i=0; i<n; i++)
+      {
+        var fld = this.ParentPanel.Fields[i];
+        if (fld.Group == this && fld.PValues[1])
+          fld.PValues[1].UpdateScreen();
+      }
+    }
+  }
+}
+
+
