@@ -134,6 +134,10 @@ images/MS-Office-2003-Excel-icon-grey.png
 images/Windows-Turn-Off-icon.png
 images/strutture-Elimina.png
 images/Remove-Male-User-icon.png
+images/Actions-document-preview-icon.png
+images/Actions-document-preview-iconDeleted.png
+images/Document-Write-icon.png
+images/blind-icon.png
 
 ; isoup HTML Parser
 
