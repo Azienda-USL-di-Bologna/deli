@@ -138,6 +138,7 @@ images/Actions-document-preview-icon.png
 images/Actions-document-preview-iconDeleted.png
 images/Document-Write-icon.png
 images/blind-icon.png
+images/run-icon.png
 
 ; isoup HTML Parser
 
