@@ -62,10 +62,11 @@ PCell.prototype.CustomizeCK = function()
 				['Cut','Copy','Paste','PasteText'],//,'Scayt'], TOLTO CORRETTORE
 				['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
 				['SpecialChar'],
+				['Table'],
 				//['Bold','Italic','Strike','Underline'],
 				['Bold','Italic','Strike','Omissis'],// (20/06/2013-tolto l'underline)
 				//['Bold','Italic','Strike','Underline','Giustifica','Omissis'],
-				//['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+				['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
 				['NumberedList','BulletedList']
 			];
 			
