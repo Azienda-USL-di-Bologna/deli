@@ -156,6 +156,3 @@ applets\lib\plugin.jar
 
 ; non si sa chi la usa, però serve
 ;web\lib\saaj-api-1.3.jar
-web\lib\
-web\lib\json-simple-1.1.1.jar
-web\lib\diff.jar
