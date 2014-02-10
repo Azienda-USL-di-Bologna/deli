@@ -141,7 +141,7 @@ images/blind-icon.png
 images/run-icon.png
 images/Pen-Red-icon.png
 images/Pen-Red-icon-grey.png
-
+images/stemma.gif
 
 ;PdfP.jar
 web\lib\PdfP.jar
@@ -157,5 +157,4 @@ applets\lib\plugin.jar
 ; non si sa chi la usa, però serve
 ;web\lib\saaj-api-1.3.jar
 web\lib\
-web\lib\json-simple-1.1.1.jar
-web\lib\diff.jar
+
