@@ -156,5 +156,8 @@ applets\lib\plugin.jar
 
 ; non si sa chi la usa, però serve
 ;web\lib\saaj-api-1.3.jar
+<<<<<<< local
 web\lib\
 
+=======
+>>>>>>> other
