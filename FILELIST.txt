@@ -142,6 +142,7 @@ images/run-icon.png
 images/Pen-Red-icon.png
 images/Pen-Red-icon-grey.png
 images/stemma.gif
+images/btn160ConIcona.gif.png
 
 ;PdfP.jar
 web\lib\PdfP.jar
