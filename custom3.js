@@ -1210,3 +1210,304 @@ MessageTooltip.prototype.SetImage = function(value)
   }
 }
 
+
+//DA EELIMINARE CON IL PASSAGGIO AD INDE 13.0
+//PATCH per risolvere il problema del ckEditor dovuta alla cancellazione del campo e, spostando il focus, si ripresenta ciò che avevamo cancellato in precedenza.
+
+//**************************************************
+// NPQ01173 - ASS 000103-2014
+PValue.prototype.SendChanges = function(evento, flag)
+{
+  var srcobj = null;
+  //
+  // Non invio variazione campi BLOB
+  if (this.ParentField.DataType==10)
+    return;
+  //
+  if (evento.tagName) // Evento puo' contenere anche il srcobj, nel caso del calendario
+  {
+    srcobj = evento;
+  }
+  else
+  {
+    if (evento.getData)
+    {
+      // E' un FCK editor!!!
+    }
+    else
+    {
+      // Normale input box, etc...
+      srcobj = (window.event)?evento.srcElement:evento.originalTarget;
+    }
+  }
+  //
+  // Se premo su uno span, e' lui l'oggetto attivo
+  // in questo caso torno all'input
+  if (srcobj && srcobj.tagName=="SPAN")
+  {
+  	var v = srcobj.previousSibling;
+  	if (v && v.tagName=="INPUT")
+  		srcobj = v;
+  }
+  //
+  if (this.IsEnabled())
+  {
+    var s = (srcobj)?srcobj.value:"";
+    if (s==undefined) s="";
+    var chg = false;
+    //
+    // Se il valore coincide con la maschera non e' una vera modifica
+    var cell = null;
+    if (srcobj)
+    {
+      cell = RD3_KBManager.GetCell(srcobj);
+      //
+      // Su !IE arriva un change spurio se clicco su di una immagine, in questo caso se la cella ha un Watermark non faccio nulla
+      // Su mobile arrivo qui anche se le celle hanno il watermark: devo comunque uscire
+      if (cell && cell.HasWatermark && (!RD3_Glb.IsIE() || RD3_Glb.IsMobile()))
+        return;
+      //
+      var en = cell.IsEnabled;
+      var msk = cell.Mask;
+      if (en && s.length>0 && msk  && msk!="" && srcobj.tagName=="INPUT")
+      {
+        // Provo a togliere la maschera e rileggo il valore
+        // Mantengo se possibile il cursore nella stessa posizione
+        var oldv = srcobj.value;
+        var curpos = getCursorPos(srcobj);
+        //
+        umc(null);
+        s = srcobj.value;
+        //
+        // Reimposto il valore corretto dell'input
+        srcobj.value = oldv;
+        //
+        // Provo a riposizionare il cursore all'interno del campo
+        // Lo faccio solo se non sto gestendo la perdita del fuoco di questa cella
+        // dato che la setCursorPos riapplica il fuoco a questo campo!
+        if (!RD3_KBManager.LoosingFocus)
+          setCursorPos(srcobj, curpos!=-1 ? curpos : oldv.length);
+      }
+      //
+      // Gestione IDCombo: prelevo il valore 
+      if (cell && cell.ControlType==3)
+        s = cell.IntCtrl.GetComboValue();
+      if (cell && cell.ControlType==4 && RD3_Glb.IsMobile())
+      {
+      	if (srcobj.tagName=="SPAN")
+      		srcobj = srcobj.parentNode;
+        s = srcobj.checked?"on":"";
+      }
+    }
+    //
+    if (evento.getData)
+    {
+      s = evento.getData();
+      evento = null;
+      //
+      //*******************************************************************************************
+      // Se c'e' una cella attivata che contiene CKEDitor ed e' collegata al mio stessto campo la uso come cella su cui memorizzare le informazioni 
+      // di dato acquisito
+      var hcell = (this.ParentField.ParentPanel.PanelMode == RD3_Glb.PANEL_LIST && this.ParentField.PListCells ? this.ParentField.PListCells[0] : this.ParentField.PFormCell);
+      if (hcell && hcell.ControlType == 101)
+        cell = hcell;
+      //********************************************************************************************
+    }
+    //
+    // Creo un altra variabile per i dati da inviare al server, per gestire la discrepanza tra la gestione client e server dei check
+    var send = s;
+    //
+    var sendev = true;
+    //
+    // Se il testo e' vuoto e lo avevo svuotato io, non mando al server l'evento
+    if (cell && cell.PwdSvuotata && s=="")
+    {
+  		sendev = false;
+  		s = this.Text;
+    }
+    //
+    if (srcobj)
+    {
+      switch (srcobj.type)
+      {
+        case "checkbox":
+        {
+          var vl = this.GetValueList();
+          //
+          if (vl && vl.ItemList.length>=2)
+            s = (srcobj.checked)?vl.ItemList[0].Value:vl.ItemList[1].Value;
+          else
+            s = (srcobj.checked)?"on":"";
+          //
+          send = (srcobj.checked)?"on":"";
+          //
+          // Se non ho una lista valori associata non mando l'evento al server: necessario perche' potrei avere campi edit con VS check,
+          // se mando il valore al server va in errore..
+          if (!vl)
+            sendev = false;
+        }
+        break;
+        
+        case "radio":
+        {
+          var vl = this.GetValueList();
+          //
+          // Se non ho una lista valori associata non mando l'evento al server: necessario perche' potrei avere campi edit con VS check,
+          // se mando il valore al server va in errore..
+          if (vl)
+            s = vl.GetOption(srcobj);
+          else
+            sendev = false;
+          //
+          send = s;
+        }
+        break;
+      }
+    }
+    //
+    chg = (s!=this.Text);
+    this.Text = s;
+    //
+    if (cell)
+      cell.Text = s;
+    //
+    // Se sono un campo LKE... invece di scrivere LKE1,LKE2,... scrivo la decodifica... 
+    // che e' poi quello che tornera' indietro dal server
+    if (chg && cell && cell.ControlType==3 && this.ParentField.LKE)
+    {
+      this.Text = cell.IntCtrl.GetComboName();
+      if (cell)
+      {
+        cell.Text = s;
+        cell.IntCtrl.OriginalText = s;
+      }
+      //
+      // Se e' "-" (LKENULL) svuoto la cella
+      if (this.Text == "-" && cell.IntCtrl.GetComboValue()=="LKENULL")
+      {
+        cell.IntCtrl.SetComboValue(this.Text);
+      }
+      // Se e' "(VAL)" (LKEPREC) tolgo le parentesi
+      if (this.Text!="" && cell.IntCtrl.GetComboValue()=="LKEPREC")
+      {
+        this.Text = this.Text.substring(1, this.Text.length-1);
+        cell.IntCtrl.SetComboValue(this.Text);
+        //
+        cell.Text = this.Text;
+        cell.IntCtrl.OriginalText = this.Text;
+      }
+    }
+    //
+    if (chg && sendev)
+    {
+      // Invio l'evento.
+      // Ritardo l'evento di 200 ms se sto premendo il mouse LEFT e il campo e' ATTIVO... magari ho cliccato
+      // sulla toolbar del pannello e voglio aspettare un pochino per infilare anche l'evento di click nella
+      // stessa richiesta
+      // Lo faccio anche se il flag e' serverside e il campo e' superattivo
+      // Lo faccio anche se il campo e' un LKE attivo
+      var ev;
+      var sup = (this.ParentField.SuperActive && (flag&RD3_Glb.EVENT_SERVERSIDE)!=0);
+      var actlke = (this.ParentField.LKE && this.ParentField.ChangeEventDef==RD3_Glb.EVENT_ACTIVE);
+      var imm = ((this.ParentField.ChangeEventDef|flag) & RD3_Glb.EVENT_IMMEDIATE);
+      //
+      // Se e' multi-selezionabile invio anche la selezione attuale
+      if (cell && cell.IntCtrl && cell.IntCtrl.MultiSel && this.ParentField.LKE && send.substr(0,3) != "LKE")
+      {
+        var txt = cell.IntCtrl.GetComboFinalName(true);
+        txt += (txt.length > 0 && send.length > 0 ? ";" : "");
+        send = txt + send;
+      }
+      //
+      if ((RD3_DDManager.LButtonDown && imm) || sup || actlke)
+      {
+        ev = new IDEvent("chg", this.Identifier, evento, this.ParentField.ChangeEventDef|flag, "", send, "", "", "", sup ? RD3_ClientParams.SuperActiveDelay : 200, (sup||actlke) ? true : false);
+      }
+      else
+      {
+        ev = new IDEvent("chg", this.Identifier, evento, this.ParentField.ChangeEventDef|flag, "", send);  
+      }
+    }
+    else
+    {
+      // Non devo lanciare l'evento, ma se premo INVIO mando comunque tutti gli
+      // eventi in sospeso al server
+      if (flag == RD3_Glb.EVENT_IMMEDIATE)
+        RD3_DesktopManager.SendEvents();
+    }
+  }
+}
+
+PValue.prototype.SetFCK= function(ev, list)
+{ 
+  var nm = this.ParentField.Identifier+(list? ":lcke" : ":fcke");
+  var fck = CKEDITOR.instances[nm];
+  if (fck)
+  {
+    // Se CK e' sporco con un valore diverso da quello che mi arriva dal server non lo sovrascrivo..
+    var setVal = true;
+    //
+    // Lo faccio solo se l'elemento e' quello attivo, altrimenti e' una perdita di tempo
+    // **Non uso il checkdirty() perche' non sempre funziona correttamente**
+    //***************************************************************************
+    if (RD3_KBManager.ActiveElement == fck)
+    {
+      var hcell = list ? this.ParentField.PListCells[0] : this.ParentField.PFormCell;
+      if (hcell && hcell.ControlType == 101)
+        setVal = (fck.getData()!=hcell.Text ? false : true);
+    }
+    else
+    {
+      // se non sono l'elemento attivo cerco tra gli eventi che ancora non sono stati inviati
+      var ev = RD3_DesktopManager.MessagePump.GetEvent(this, "chg");
+    	setVal = (ev ? false : true);
+    }
+    //***************************************************************************
+    // 
+    if (setVal)
+      fck.setData(this.Text);
+  }
+  this.ParentField.FCKTimerID=0;
+}
+
+PField.prototype.OnFCKSelectionChange= function(fck)
+{
+  var nr = this.ParentPanel.ActualPosition + this.ParentPanel.ActualRow;
+  //
+  if (this.ParentPanel.IsGrouped())
+    nr = this.ParentPanel.GetRowIndex(this.ParentPanel.ActualRow);
+  //
+  try
+  {
+    //*******************************************************************
+    var ed = fck.editor ? fck.editor : fck;
+    //
+    var uncommitted = false;
+    var hcell = (this.ParentPanel.PanelMode == RD3_Glb.PANEL_LIST && this.PListCells ? this.PListCells[0] : this.PFormCell);
+    if (hcell && hcell.ControlType == 101)
+        uncommitted = (hcell.Text != ed.getData());
+    //
+    if (ed && ed.checkDirty && ed.checkDirty() || uncommitted)
+    {
+      var s = ed.getData();
+      //
+      if (this.PValues[nr].Text != s && this.FCKTimerID==0)
+      {
+        this.OnChange(ed,this.ParentPanel.ActualRow);
+      }  
+      //
+      ed.resetDirty();
+    }
+    //*******************************************************************
+  }
+  catch (ex)
+  {}
+}
+// NPQ01173 - ASS 000103-2014
+//**************************************************
+
+
+
+
+
+
