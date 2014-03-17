@@ -144,6 +144,8 @@ images/Pen-Red-icon-grey.png
 images/stemma.gif
 images/btn160ConIcona.gif.png
 images/Apps-session-logout-icon.png
+images/Remove-Male-User-icon-grey.png
+
 
 ;PdfP.jar
 web\lib\PdfP.jar
