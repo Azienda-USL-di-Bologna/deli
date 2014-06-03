@@ -145,6 +145,8 @@ images/stemma.gif
 images/btn160ConIcona.gif.png
 images/Apps-session-logout-icon.png
 images/Remove-Male-User-icon-grey.png
+images/Trash-Empty-icon16x16.png
+images/elimina.png
 
 
 ;PdfP.jar
