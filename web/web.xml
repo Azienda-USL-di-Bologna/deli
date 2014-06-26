@@ -31,6 +31,8 @@
     <servlet-mapping>
         <servlet-name>Deli</servlet-name>
         <url-pattern>/Deli.htm</url-pattern>
+		<!-- WebApi -->
+        _ICD_DO_WEBAPI
     </servlet-mapping>
 	
 	<servlet>
