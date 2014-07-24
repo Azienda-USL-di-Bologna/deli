@@ -1470,6 +1470,7 @@ PValue.prototype.SetFCK= function(ev, list)
   this.ParentField.FCKTimerID=0;
 }
 
+/*
 PField.prototype.OnFCKSelectionChange= function(fck)
 {
   var nr = this.ParentPanel.ActualPosition + this.ParentPanel.ActualRow;
@@ -1502,12 +1503,40 @@ PField.prototype.OnFCKSelectionChange= function(fck)
   }
   catch (ex)
   {}
-}
+}*/
 // NPQ01173 - ASS 000103-2014
 //**************************************************
 
 
 
+// ********************************************************************************
+// Lanciato quando il testo del FCK cambia // ASS 1198-2014
+// ********************************************************************************
+PField.prototype.OnFCKSelectionChange= function(fck)
+{
+  var nr = this.ParentPanel.ActualPosition + this.ParentPanel.ActualRow;
+  //
+  if (this.ParentPanel.IsGrouped())
+    nr = this.ParentPanel.GetRowIndex(this.ParentPanel.ActualRow);
+  //
+  try
+  {
+    var ed = fck.editor ? fck.editor : fck;
+    if (ed && ed.checkDirty && ed.checkDirty())
+    {
+      var s = ed.getData();
+      //
+      if (this.PValues[nr].Text != s && this.FCKTimerID==0)
+      {
+        this.OnChange(ed,this.ParentPanel.ActualRow);
+      }  
+      //
+      ed.resetDirty();
+    }
+  }
+  catch (ex)
+  {}
+}
 
 
 
