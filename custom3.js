@@ -34,19 +34,19 @@ PCell.prototype.CustomizeCK = function()
 	// L'oggetto Conf è l'oggetto contenente la configurazione di CKEditor
 	var config = new Object();
 
-			config.extraPlugins = 'switchbar,omissis,giustificadefoult,custompaste'; //per il correttore ortografico guarda sotto, (15/03/2013-tolto l'omissis)
+			config.extraPlugins = ''; //per il correttore ortografico guarda sotto, (15/03/2013-tolto l'omissis)
 			//config.extraPlugins = 'switchbar,omissis,giustifica';
 			config.switchBarSimple = 'Basic';
 			config.switchBarReach = 'Full';
 			config.switchBarDefault = 'Basic';
-			config.tagOmissis = 'span';
+			config.tagOmissis = 'strike';
 			config.tagGiustifica = 'div';
 			config.switchBarSimpleIcon = 'maximise.gif';
 			config.switchBarReachIcon = 'minimise.gif';
 			//config.forcePasteAsPlainText = true;
 			config.resize_enabled = false;
 			//config.pasteFromWordCleanupFile = 'cleanword';
-			config.allowTagsForJasperReport = new Array("b", "u", "i", "sup", "sub", "li", "br", "ul", "ol");
+			config.allowTagsForJasperReport = new Array("b", "u", "i", "sup", "sub", "li", "br", "ul", "ol", "s");
 			
 			//setto il correttore ortografico subito attivo, e sulla lingua italiana. TOLTO CORRETTORE
 			//config.scayt_autoStartup = false;
@@ -59,14 +59,13 @@ PCell.prototype.CustomizeCK = function()
 			// Configurazione personalizzata dei pulsanti presenti nella toolbar
 			config.toolbar_Basic =
 			[
-				['Cut','Copy','Paste','PasteText'],//,'Scayt'], TOLTO CORRETTORE
+				['Cut','Copy','Paste','PasteText', 'PasteFromWord'],//,'Scayt'], TOLTO CORRETTORE
 				['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-				['SpecialChar'],
-				['Table'],
+				['SpecialChar','Table'],
 				//['Bold','Italic','Strike','Underline'],
-				['Bold','Italic','Omissis'],// (20/06/2013-tolto l'underline)
+				['Bold','Italic','Strike'],// (20/06/2013-tolto l'underline)
 				//['Bold','Italic','Strike','Underline','Giustifica','Omissis'],
-				['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+				//['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
 				['NumberedList','BulletedList']
 			];
 			
@@ -1539,4 +1538,89 @@ PField.prototype.OnFCKSelectionChange= function(fck)
 }
 
 
+
+/* 
+  ***************************************************************************************************************
+  PARTE RELATIVA ALL'ASSISTENZA SUL NUOVO CKEDITOR NELLA VERSIONE 4.4.4
+  SERVE A RISOLVERE IL PROBLEMA DELLA CHIUSURA DELLA POPUP CONTENENTE IL CKEDITOR NELL'ULTIMA VERSIONE APPUNTO. 
+  IL BROBLEMA CHE SI VERIFICAVA ERA CHE ALLA CHIUSURA DELLA POPUP, L'ISTANZA DEL CKEDITOR VENIVA SPOSTATA IN ALTO
+  A SINISTRA MA RIMANEVA COMUNQUE VISIBILE IN INTERFACCIA.
+  ****************************************************************************************************************
+*/
+
+PCell.prototype.Unrealize = function()
+{
+  // Rimuovo i controlli dal DOM
+  if (this.IntCtrl)
+  {
+    if (this.ControlType != 3)   // COMBO
+    {
+      if (this.ControlType == 101)
+      {
+        if (RD3_ServerParams.UseIDEditor)
+        {
+          this.IntCtrl.Unrealize();   // IDEditor
+        }
+        else
+        {
+          var nm = this.ParentField.Identifier + (this.InList ? ":lcke" : ":fcke");
+          var ed = CKEDITOR.instances[nm];
+          //
+          if (ed)
+          {
+      
+      
+            document.body.appendChild(this.IntCtrl);
+      // CON QUESTRO TRY CATCH INTERCETTIAMO L'ECCEZIONE E COSI CI TOGLIE L'ISTANZA DEL CKEDITOR E NON LA MOSTRA PIU IN ALTO A SX
+      try
+      {
+              ed.destroy(true);
+      }
+      catch (ex)
+      {
+      }
+          }
+        }
+      }
+      //
+      if (this.IntCtrl.parentNode)
+        this.IntCtrl.parentNode.removeChild(this.IntCtrl);
+      //
+      if (this.ActObj && this.ActObj.parentNode)
+        this.ActObj.parentNode.removeChild(this.ActObj);
+      this.ActObj = null;
+      //
+      if (this.ErrorBox && this.ErrorBox.parentNode)
+        this.ErrorBox.parentNode.removeChild(this.ErrorBox);
+      this.ErrorBox = null;
+      //
+      if (this.OptionValueList)
+        this.OptionValueList = null;
+      //
+      if (this.BadgeObj != null && this.BadgeObj.parentNode)
+        this.BadgeObj.parentNode.removeChild(this.BadgeObj);
+      this.BadgeObj = null;
+      //
+      if (this.TooltipDiv && this.TooltipDiv.parentNode)
+        this.TooltipDiv.parentNode.removeChild(this.TooltipDiv);
+      this.TooltipDiv = null;
+    }
+    else
+      this.IntCtrl.Unrealize();   // IDCombo
+    //
+    if (RD3_KBManager.ActiveElement && RD3_KBManager.ActiveElement == this.IntCtrl)
+      RD3_KBManager.ActiveElement = null;
+    //
+    // E mi dimentico di lui
+    this.IntCtrl = null;
+  }
+  //
+  // Mi stacco dai miei "padri"
+  this.PValue = null;
+  this.ParentField = null;
+  //
+  // Se ero selezionato... ora non lo sono piu'
+  if (RD3_DesktopManager.WebEntryPoint.HilightedCell==this)
+    RD3_DesktopManager.WebEntryPoint.HilightedCell = null;
+}
 
