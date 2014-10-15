@@ -35,6 +35,10 @@
 		<url-pattern>/Rititola/*</url-pattern>
 		<url-pattern>/Rititola.json/*</url-pattern>
 		<url-pattern>/Rititola.xml/*</url-pattern>
+
+        <url-pattern>/Deliberatore/*</url-pattern>
+        <url-pattern>/Deliberatore.json/*</url-pattern>
+        <url-pattern>/Deliberatore.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
