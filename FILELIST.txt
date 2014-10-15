@@ -9,14 +9,6 @@ ckeditor/skins/moono/images/
 ckeditor/skins/moono/images/hidpi/
 ckeditor/css/
 
-;ckeditor/plugins/omissis/
-;ckeditor/plugins/switchbar/
-;ckeditor/plugins/switchbar/images/
-;ckeditor/plugins/specialchar/dialogs/
-;ckeditor/css/
-;ckeditor/plugins/giustifica/
-;ckeditor/plugins/giustificadefoult/
-;ckeditor/plugins/custompaste/
 images/
 signedTemp/
 applets/
@@ -51,17 +43,6 @@ ckeditor/skins/moono/images/arrow.png
 ckeditor/skins/moono/images/lock.png
 ckeditor/skins/moono/images/lock-open.png
 ckeditor/skins/moono/images/refresh.png
-;ckeditor/plugins/custompaste/plugin.js
-;ckeditor/plugins/specialchar/dialogs/specialchar.js
-;ckeditor/css/mysitestyles.css
-;ckeditor/plugins/omissis/plugin.js
-;ckeditor/plugins/omissis/omissis.gif
-;ckeditor/plugins/switchbar/plugin.js
-;ckeditor/plugins/switchbar/images/maximise.gif
-;ckeditor/plugins/switchbar/images/minimise.gif
-;ckeditor/plugins/giustifica/plugin.js
-;ckeditor/plugins/giustifica/giustifica.gif
-;ckeditor/plugins/giustificadefoult/plugin.js
 images/Categoria.png
 images/Sottoclasse.png
 images/Classe.png
@@ -194,7 +175,7 @@ web\classes\log4j.properties
 applets\SignedPrintPdfApplet.jar
 applets\lib\plugin.jar
 
-; non si sa chi la usa, però serve
+; non si sa chi la usa, perÃ² serve
 ;web\lib\saaj-api-1.3.jar
 <<<<<<< local
 web\lib\
