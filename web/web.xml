@@ -40,9 +40,9 @@
         <url-pattern>/Deliberatore.json/*</url-pattern>
         <url-pattern>/Deliberatore.xml/*</url-pattern>
 		
-		<url-pattern>/PulisciTitoliDelibere/*</url-pattern>
-		<url-pattern>/PulisciTitoliDelibere.json/*</url-pattern>
-		<url-pattern>/PulisciTitoliDelibere.xml/*</url-pattern>
+		<url-pattern>/PulisciTitoliDocumenti/*</url-pattern>
+		<url-pattern>/PulisciTitoliDocumenti.json/*</url-pattern>
+		<url-pattern>/PulisciTitoliDocumenti.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
