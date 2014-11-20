@@ -35,6 +35,9 @@
 		<url-pattern>/Rititola/*</url-pattern>
 		<url-pattern>/Rititola.json/*</url-pattern>
 		<url-pattern>/Rititola.xml/*</url-pattern>
+		<url-pattern>/DaFirmare/*</url-pattern>
+		<url-pattern>/DaFirmare.json/*</url-pattern>
+		<url-pattern>/DaFirmare.xml/*</url-pattern>				
     </servlet-mapping>
 	
 	<servlet>
