@@ -35,9 +35,14 @@
 		<url-pattern>/Rititola/*</url-pattern>
 		<url-pattern>/Rititola.json/*</url-pattern>
 		<url-pattern>/Rititola.xml/*</url-pattern>
-		<url-pattern>/DaFirmare/*</url-pattern>
-		<url-pattern>/DaFirmare.json/*</url-pattern>
-		<url-pattern>/DaFirmare.xml/*</url-pattern>				
+
+        <url-pattern>/Deliberatore/*</url-pattern>
+        <url-pattern>/Deliberatore.json/*</url-pattern>
+        <url-pattern>/Deliberatore.xml/*</url-pattern>
+		
+		<url-pattern>/PulisciTitoliDocumenti/*</url-pattern>
+		<url-pattern>/PulisciTitoliDocumenti.json/*</url-pattern>
+		<url-pattern>/PulisciTitoliDocumenti.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
