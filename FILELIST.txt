@@ -166,6 +166,8 @@ images/elimina.png
 images/eliminaDisabled.png
 images/Button-Reload-icon24.png
 images/Folder-Downloads-icon.png
+images/Folder-Downloads-icon32.png
+images/Button-Reload-icon32.png
 
 modelli/firmispizio_deli.pdf
 
