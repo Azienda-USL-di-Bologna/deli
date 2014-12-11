@@ -1,4 +1,4 @@
-; Directories
+﻿; Directories
 
 ckeditor/
 ckeditor/lang/
@@ -16,6 +16,7 @@ applets/lib/
 web/lib/
 web/classes/proctonservlets/
 temp/
+modelli/
 
 ;Files
 
@@ -166,6 +167,8 @@ images/eliminaDisabled.png
 images/Button-Reload-icon24.png
 images/Folder-Downloads-icon.png
 
+modelli/firmispizio_deli.pdf
+
 ;PdfP.jar
 web\lib\PdfP.jar
 
@@ -173,14 +176,6 @@ web\lib\PdfP.jar
 ; configurazione log4j
 web\classes\log4j.properties
 
-; Applets
-applets\SignedPrintPdfApplet.jar
-applets\lib\plugin.jar
 
 ; non si sa chi la usa, però serve
 ;web\lib\saaj-api-1.3.jar
-<<<<<<< local
-web\lib\
-
-=======
->>>>>>> other
