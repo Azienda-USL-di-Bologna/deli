@@ -948,3 +948,12 @@ font-size: 10pt;
 	background-color: transparent;
 	padding-top: 2px;
 }
+
+/* *****************************************************/
+/* Classe applicata al div contentente l'etichetta nera*/
+/* che copre l'intestazione dell'anteprima in Firefox  */
+/* *****************************************************/
+.CopriIntestazioneAnteprima
+{
+	z-index: 2 !important;
+}
