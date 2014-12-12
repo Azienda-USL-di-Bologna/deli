@@ -114,6 +114,8 @@ images/Button-Refresh-icon.png
 images/Button-Reload-icon.png
 images/Button-Rewind-icon.png
 images/Button-Rewind-icon2.png
+images/Button-Forward-icon-small.png
+images/Button-Forward-icon-small-gray.png
 images/Button-Stop-icon.png
 images/grey-Button-Add-icon.png
 images/grey-Button-Cancel-icon.png
