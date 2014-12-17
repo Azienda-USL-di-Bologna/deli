@@ -1215,6 +1215,7 @@ MessageTooltip.prototype.SetImage = function(value)
 
 //**************************************************
 // NPQ01173 - ASS 000103-2014
+/*
 PValue.prototype.SendChanges = function(evento, flag)
 {
   var srcobj = null;
@@ -1436,6 +1437,7 @@ PValue.prototype.SendChanges = function(evento, flag)
     }
   }
 }
+*/
 
 PValue.prototype.SetFCK= function(ev, list)
 { 
