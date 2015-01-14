@@ -170,6 +170,11 @@ images/Folder-Downloads-icon32.png
 images/Button-Reload-icon32.png
 images/Button-Refresh-icon_40.png
 images/fullscreen_yellow.png
+images/File-New-icon48_withText.png
+images/File-Open-icon48_withText.png
+images/File-Delete-icon.png
+images/Alert-icon.png
+images/Close-icon48.png
 
 modelli/firmispizio_deli.pdf
 
