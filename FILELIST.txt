@@ -176,6 +176,8 @@ images/File-Delete-icon.png
 images/Alert-icon.png
 images/Close-icon48.png
 images/Actions-window-fullscreen-icon.png
+images/disk-save-grey-icon.png
+images/disk-save-yellow-icon.png
 
 modelli/firmispizio_deli.pdf
 
