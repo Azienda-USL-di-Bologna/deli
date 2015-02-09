@@ -154,7 +154,7 @@ Contenitore Testata con nome dell'applicazione --> pulsante per la chiusura dell
     width: 300px;
 }
 .popup-menu-container {
-    background-color: #0961a8;
+    background-color: #4B4B4B;
     border: 1px solid #99BBE8;
     margin: 0;
     padding: 0;
@@ -162,7 +162,7 @@ Contenitore Testata con nome dell'applicazione --> pulsante per la chiusura dell
     width: 160px;
 }
 .popup-cell-icon {
-    background-color: #0961a8;
+    background-color: #4b4b4b;
     cursor: pointer;
     font-size: 1pt;
     height: 1px;
@@ -170,7 +170,7 @@ Contenitore Testata con nome dell'applicazione --> pulsante per la chiusura dell
     width: 20px;
 }
 .popup-menu-hover {
-    background-color: #033d6d;
+    background-color: #383838;
 }
 .popup-cell-text {
     color: white;
