@@ -963,4 +963,9 @@ font-size: 10pt;
 	z-index: 7 !important;
 }
 
-
+/* **********************************************************/
+/* Correzione problema che le textarea non andavano a capo  */
+/* **********************************************************/
+.panel-value-textarea {
+    white-space: normal;
+}
