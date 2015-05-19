@@ -63,7 +63,7 @@ PCell.prototype.CustomizeCK = function()
 				['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
 				['SpecialChar','Table'],
 				//['Bold','Italic','Strike','Underline'],
-				['Bold','Italic','Underline','Strike'],// (20/06/2013-tolto l'underline)
+				['Bold','Italic','Strike'],// (20/06/2013-tolto l'underline)
 				//['Bold','Italic','Strike','Underline','Giustifica','Omissis'],
 				//['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
 				['NumberedList','BulletedList']

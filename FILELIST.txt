@@ -44,7 +44,7 @@ ckeditor/skins/moono/images/arrow.png
 ckeditor/skins/moono/images/lock.png
 ckeditor/skins/moono/images/lock-open.png
 ckeditor/skins/moono/images/refresh.png
-ckeditor/config.js
+
 images/Categoria.png
 images/Sottoclasse.png
 images/Classe.png
