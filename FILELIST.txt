@@ -191,7 +191,8 @@ web\lib\PdfP.jar
 
 
 ; configurazione log4j
-web\classes\log4j.properties
+; web\classes\log4j.properties
+web\classes\log4j2.xml
 
 
 ; non si sa chi la usa, però serve
