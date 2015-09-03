@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Appenders>
-        <!--<File name="FILEGDM" fileName="${sys:catalina.home}/logs/bds_tools.log">
-            <PatternLayout>
-                <Pattern>%d{yyyy MM dd HH:mm:ss,SSS} %p %t %c - %m%n</Pattern>
-            </PatternLayout>
-        </File>-->
-        <RollingFile name="Application" fileName="${sys:catalina.home}/logs/deli_application.log"
+        <RollingFile name="Deli_Application" fileName="${sys:catalina.home}/logs/deli_application.log"
             filePattern="${sys:catalina.home}/logs/deli_application.log.%i">
             <PatternLayout>
                 <Pattern>%d{yyyy MM dd HH:mm:ss,SSS} %p %t %c - %m%n</Pattern>
@@ -16,7 +11,7 @@
             </Policies>
             <DefaultRolloverStrategy max="40"/>
         </RollingFile>
-                <RollingFile name="LocalChef" fileName="${sys:catalina.home}/logs/deli_localchef.log"
+        <RollingFile name="Deli_LocalChef" fileName="${sys:catalina.home}/logs/deli_localchef.log"
             filePattern="${sys:catalina.home}/logs/deli_localchef.log.%i">
             <PatternLayout>
                 <Pattern>%d{yyyy MM dd HH:mm:ss,SSS} %p %t %c - %m%n</Pattern>
@@ -26,7 +21,7 @@
             </Policies>
             <DefaultRolloverStrategy max="40"/>
         </RollingFile>
-                <RollingFile name="Service" fileName="${sys:catalina.home}/logs/deli_service.log"
+        <RollingFile name="Deli_Service" fileName="${sys:catalina.home}/logs/deli_service.log"
             filePattern="${sys:catalina.home}/logs/deli_service.log.%i">
             <PatternLayout>
                 <Pattern>%d{yyyy MM dd HH:mm:ss,SSS} %p %t %c - %m%n</Pattern>
@@ -43,19 +38,19 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="application" level="info" additivity="false">
-            <AppenderRef ref="Application"/>
+        <Logger name="deli_application" level="info" additivity="false">
+            <AppenderRef ref="Deli_Application"/>
         </Logger>
-         <Logger name="localchef" level="info" additivity="false">
-            <AppenderRef ref="LocalChef"/>
+        <Logger name="deli_localchef" level="info" additivity="false">
+            <AppenderRef ref="Deli_LocalChef"/>
         </Logger>
-         <Logger name="service" level="info" additivity="false">
-            <AppenderRef ref="Service"/>
+        <Logger name="deli_service" level="info" additivity="false">
+            <AppenderRef ref="Deli_Service"/>
         </Logger>
 
         <Root level="info">
             <!--<AppenderRef ref="Console" />-->
-            <AppenderRef ref="application" />
+            <AppenderRef ref="Deli_Application" />
         </Root>
     </Loggers>
 </Configuration>
