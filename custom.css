@@ -22,6 +22,16 @@ BODY {
     width: 100%;
 }
 
+/*Serve per rendere selezionabile le aree di testo*/
+.selectable 
+{
+ -moz-user-select: text;
+  user-select: text;
+  -o-user-select:text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+}
+
 
 /*
 Contenitore Testata con nome dell'applicazione
