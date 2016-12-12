@@ -1627,3 +1627,143 @@ PCell.prototype.Unrealize = function()
 }
 
 
+/********************************************************************
+*PARTE DI LORENZ (per poter cancellare i pallini dal campo password)*
+*********************************************************************/
+// **********************************************************************
+// Mette/toglie l'evidenziazione sulla cella
+// **********************************************************************
+PCell.prototype.SetActive = function()
+{
+  // Un header di gruppo non e' mai fuocabile
+  if (this.ControlType == 111)
+    return;
+  //
+  // Vediamo chi era gia' attivato
+  var oldCell = RD3_DesktopManager.WebEntryPoint.HilightedCell;
+  //
+  // La cella gia' attiva sono io... non faccio null'altro
+  if (oldCell==this)
+  {
+    // Se, pero', sono una combo deferrata, allora lo comunico ugualmente
+    if (this.ControlType==3 && this.IntCtrl.DeferEmpty)
+      this.IntCtrl.SetText("", true, true);
+    return;
+  }
+  //
+  // Se c'era gia' una cella attiva, la disattivo
+  if (oldCell)
+    oldCell.SetInactive();
+  //
+  // Se la cella e' abilitata e' fuocabile
+  if (this.IsEnabled && this.ControlType != 6 && !RD3_Glb.IsMobile())
+  {
+    // Ora proseguo con me. Recupero i dati di questa cella
+    var pf = this.ParentField;
+    var vs = this.PValue ? this.PValue.GetVisualStyle() : pf.VisualStyle;
+    //
+    var backCol  = vs.GetColor(10); // VISCLR_EDITING
+    var brdColor = vs.GetColor(11); // VISCLR_BORDERS
+    var bt = vs.GetBorders((this.InList)? 1 : 6); // VISBDI_VALUE : VISBDI_VALFORM
+    var r = vs.GetBookOffset(true,(this.InList)? 1 : 6); // r contiene le dimensioni di ogni bordo
+    // r.x = bordo sinistro
+    // r.y = bordo sopra
+    // r.w = bordo destro
+    // r.h = bordo sotto
+    //
+    // Evidenzio il mio bordo
+    var s = this.GetDOMObj().style;
+    if (backCol != "transparent")
+      s.backgroundColor = backCol;
+    else
+    {
+      // Imposto i bordi solo se non c'e' il colore di editing
+      s.border = "2px solid " + brdColor;
+      var neww = parseInt(s.width)-(4-r.x-r.w);
+      var newh = parseInt(s.height)-(4-r.y-r.h);
+      s.width = (neww<0 ? 0 : neww) + "px";
+      s.height = (newh<0 ? 0 : newh) + "px";
+    }
+    //
+    // Se c'e' l'attivatore ed e' visibile, evidenzio anche lui!
+    if (this.ActObj && this.ActObjVisible)
+    {
+      var ss = this.ActObj.style;
+      if (backCol != "transparent")
+        ss.backgroundColor = backCol;
+      else
+      {
+        if (this.ActPos==1)
+        {
+          ss.borderLeft = "2px solid " + brdColor;
+          s.borderLeft = "none";
+          //
+          // Lascio fermo l'attivatore!
+          ss.backgroundPosition = "1px center";
+          //
+          // Ripristino larghezza del campo che e' stata mangiata dalla sparizione del bordo
+          s.width = (parseInt(s.width)+2) + "px";
+        }
+        else
+        {
+          ss.borderRight = "2px solid " + brdColor;
+          s.borderRight = "none";
+          //
+          // Devo anche spostarlo in "dentro" di un po'
+          var dd = 3 - 2*r.w;
+          ss.left = (parseInt(ss.left) - dd) + "px";
+          //
+          // Lascio fermo l'attivatore!
+          ss.backgroundPosition = "3px center";
+        }
+        ss.borderTop = "2px solid " + brdColor;
+        ss.borderBottom = "2px solid " + brdColor;
+        //
+        // Purtroppo sembra che senza bordi l'attivatore sia anche piu' corto...
+        var dh = (r.y==0 && r.h==0)?3:4;
+        ss.height = (parseInt(ss.height)-(dh-r.y-r.h)) + "px";
+      }
+    }
+    //
+    // Se e' una COMBO la informo che e' diventata attiva
+    if (this.ControlType==3 || (this.ControlType == 101 && RD3_ServerParams.UseIDEditor))
+      this.IntCtrl.SetActive(true);
+    //
+    // Ora questa e' la cella attiva
+    RD3_DesktopManager.WebEntryPoint.HilightedCell = this;
+    //
+    // Se e' un campo password, lo svuoto... non gestiamo il delta!
+    // lo faccio solo se conteneva solo degli asterischi
+    /*if (this.ControlType==2 && this.NumRows==1)
+    {
+      var vs = this.PValue.GetVisualStyle();
+      if (vs.IsPassword())
+      {
+        var svuota = true;
+        for (var idx = 0; idx<this.Text.length; idx++)
+        {
+          if (this.Text.substr(idx,1)!="*")
+          {
+            svuota=false;
+            break;
+          }
+        }
+        //
+        if (svuota)
+        {
+          this.IntCtrl.value = "";
+          this.PwdSvuotata = true;
+        }
+      }
+    }*/
+    //
+    // Se ho un tooltip di errore e il parametro e' 2 mostro tooltip
+    if (this.TooltipErrorObj && !this.TooltipErrorObj.Opened && RD3_ServerParams.TooltipErrorMode == 2)
+      this.TooltipErrorObj.Activate();
+  }
+  else
+  {
+    // Non posso fuocarla... dichiaro la perdita del fuoco
+    this.ParentField.LostFocus(this.IntCtrl,null, true);
+  }
+}
