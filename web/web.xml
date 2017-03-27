@@ -47,6 +47,10 @@
 		<url-pattern>/DaFirmare/*</url-pattern>
 		<url-pattern>/DaFirmare.json/*</url-pattern>
 		<url-pattern>/DaFirmare.xml/*</url-pattern>
+		
+		<url-pattern>/IdoneitaParer/*</url-pattern>
+		<url-pattern>/IdoneitaParer.json/*</url-pattern>
+		<url-pattern>/IdoneitaParer.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
