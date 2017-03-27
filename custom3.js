@@ -1767,3 +1767,16 @@ PCell.prototype.SetActive = function()
     this.ParentField.LostFocus(this.IntCtrl,null, true);
   }
 }
+
+  
+//questo mi serve per limitare il numero di caratteri dell'oggetto a 1024
+function setMaxLengthToOggettoDiv(){
+	
+		var elementsArray = document.getElementsByClassName("oggetto-div");
+		var currentElement;
+		for(var i = 0; i< elementsArray.length; i++){
+			currentElement = elementsArray[i];
+			if(currentElement.tagName.toLowerCase() === "textarea")
+				currentElement.setAttribute("maxLength", 1024);
+		}	
+}
