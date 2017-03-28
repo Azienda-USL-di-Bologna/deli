@@ -1768,7 +1768,6 @@ PCell.prototype.SetActive = function()
   }
 }
 
-  
 //questo mi serve per limitare il numero di caratteri dell'oggetto a 1024
 function setMaxLengthToOggettoDiv(){
 	
