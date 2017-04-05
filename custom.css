@@ -988,3 +988,12 @@ div.popup-menu-container{
 tr.popup-cell-text{
 	height: 20px!important;
 }
+
+.panel-field-value-list img {
+    position: absolute !important;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    right: 0;
+    margin: auto;
+}
