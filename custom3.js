@@ -1,3 +1,223 @@
+//**********************************
+// Assistenza 001285-2017
+// Videate che in apertura generano errori javascript
+// Verrà corretto in un prossimo rilascio della 16.5
+//**********************************
+IDPanel.prototype.AdaptLayout = function()
+{ 
+  // Per migliorare le performance, elimino la listlistbox dal dom (non per IE6 che ha problemi con i check box!)
+  var refoc = null;
+  var removeFromDOM = (RD3_Glb.IsIE(10, false) && !RD3_Glb.IsIE(6) && this.PanelMode==RD3_Glb.PANEL_LIST && this.FixedColumns==0);
+  if (removeFromDOM)
+  {
+    // Se l'oggetto che aveva il fuoco era dentro al pannello, IE lo perde!
+    var oldActiveElem = document.activeElement;
+    //
+    this.ContentBox.removeChild(this.ListBox);
+    //
+    if (document.activeElement != oldActiveElem)
+      refoc = oldActiveElem;
+  }
+  //
+  // Se presenti dimensiono le linguette delle pagine
+  // Lo faccio prima della chiamata alla classe base in modo che
+  // essa puo' mettere a posto bene il content box
+  if (this.Pages.length > 0)
+  {
+    // Se sono dentro una Tab prima di fare l'adattamento delle pagine devo dimensionare correttamente il FrameBox
+    // se no vengono disegnate male..
+    if (this.ParentTab)
+    {
+      RD3_Glb.AdaptToParent(this.FrameBox, 0, 0);
+    }
+    //
+    this.AdaptPagesLayout();
+  }
+  //
+  var res = this.SendResize;
+  //
+  // Chiamo la classe base
+  var flDontCheckSB = false;
+  WebFrame.prototype.AdaptLayout.call(this);
+  //
+  // Non dovrei ridimensionare... Pero' se ho posticipato un resize lo devo fare comunque
+  if (!res)
+  {
+    res |= (this.PanelMode==RD3_Glb.PANEL_FORM && (this.MustResizeFormW || this.MustResizeFormH)) | 
+           (this.PanelMode==RD3_Glb.PANEL_LIST && (this.MustResizeListW || this.MustResizeListH));
+  }
+  //
+  if (res || (this.ResVisFld && this.ResOnlyVisFlds))
+  {
+    // A parte Safari, gli altri brw calcolano immediatamente la scrollbar nel contentbox
+    if (!RD3_Glb.IsSafari() && this.DeltaW<0)
+      flDontCheckSB = true;
+    //
+    // Chiamo il resize dei campi in form e in lista
+    if (this.HasForm)
+    {
+      // Dunque... ho la form... se sono in form, ridimensiono la form... Se avevo posticipato il resize prendo
+      // i delta che non ho fatto... se, invece, il layout attivo non e' quello giusto mi ricordo che quando cambiero'
+      // layout dovro' ridimensionare il layout form
+      if (this.PanelMode==RD3_Glb.PANEL_FORM && this.Visible)
+      {
+        if (!this.DeltaW && this.MustResizeFormW) this.DeltaW = this.MustResizeFormW;
+        if (!this.DeltaH && this.MustResizeFormH) this.DeltaH = this.MustResizeFormH;
+        this.ResizeForm();
+        this.MustResizeFormW = 0;
+        this.MustResizeFormH = 0;
+      }
+      else if (this.LastFormResizeW==0 && (this.DeltaW || this.DeltaH))   // Solo se non ho mai resizato il layout form... mi ricordo di questi delta
+      {
+        this.MustResizeFormW = (this.MustResizeFormW==undefined ? 0 : this.MustResizeFormW) + this.DeltaW;
+        this.MustResizeFormH = (this.MustResizeFormH==undefined ? 0 : this.MustResizeFormH) + this.DeltaH;
+      }
+    }
+    if (this.HasList)
+    {
+      // Dunque... ho la lista... se sono in list, ridimensiono la lista... Se avevo posticipato il resize prendo
+      // i delta che non ho fatto... se, invece, il layout attivo non e' quello giusto mi ricordo che quando cambiero'
+      // layout dovro' ridimensionare il layout list
+      if (this.PanelMode==RD3_Glb.PANEL_LIST && this.Visible)
+      {
+        if (!this.DeltaW && this.MustResizeListW) this.DeltaW = this.MustResizeListW;
+        if (!this.DeltaH && this.MustResizeListH) this.DeltaH = this.MustResizeListH;
+        //
+        // Se ho un resize non applicato lo devo considerare quando faccio i calcoli del delta.
+        // Solo quando non sono attive le animazioni, altrimenti il codice li considera correttamente
+/*        if (!RD3_ClientParams.EnableGFX && this.DeltaH != 0 && !this.MustResizeListH)
+          this.DeltaH += this.MustResizeListH;
+	  */
+        //
+        this.ResizeList();
+        this.MustResizeListW = 0;
+        this.MustResizeListH = 0;
+      }
+      else if (this.LastListResizeW==0 && (this.DeltaW || this.DeltaH))   // Solo se non ho mai resizato il layout lista... mi ricordo di questi delta
+      {
+        this.MustResizeListW = (this.MustResizeListW==undefined ? 0 : this.MustResizeListW) + this.DeltaW;
+        this.MustResizeListH = (this.MustResizeListH==undefined ? 0 : this.MustResizeListH) + this.DeltaH;
+      }
+    }
+    this.DeltaW = 0;
+    this.DeltaH = 0;
+    this.SetActualPosition();
+    //
+    if (RD3_Glb.IsMobile())
+      this.RefreshToolbar = true;
+  }
+  this.ResVisFld = false;
+  //
+  // Aggiusto il layout
+  if (this.PanelMode==RD3_Glb.PANEL_LIST)
+  {
+    this.CalcListLayout(flDontCheckSB);
+    if (this.IsGrouped())
+      this.CalcListGroupLayout();
+  }
+  //
+  // Aggiusto il layout dei gruppi
+  this.CalcGroupsLayout();
+  //
+  // Passo la palla ai figli, che potrebbero avere dei subframes
+  // Se sono su IE, vedo se qualche campo ha un Sub-Frame... Se e' cosi' devo
+  // rimettere subito nel DOM il pannello, altrimenti non funziona bene il resize...
+  // Pero', se lo faccio dopo, e' molto piu' veloce
+  var restoreListInDom = true;
+  var n = this.Fields.length;
+  for (var i=0; i<n; i++)
+  {
+    var f = this.Fields[i];
+    //
+    if (removeFromDOM && restoreListInDom && f.SubFrame && f.SubFrame.Realized && f.IsVisible())
+    {
+      // Hai... devo ripristinarlo qui!
+      this.ContentBox.appendChild(this.ListBox);
+      restoreListInDom = false;
+    }
+    //
+    f.AdaptLayout();
+  }  
+  //
+  // Su Safari e Chrome c'e' un baco con la gestione delle scrollbar, che rimangono anche se il pannello ci sta completamente, 
+  // allora qui le tolgo e poi sara' la SetScrollbar a rimetterle (l'AdaptFormListLayout non legge le dimensioni dal DOM quindi la modifica non ha impatto su di lei)
+  // facendo cosi' Safari e Chrome calcolano bene le scrollbar, togliendole se non servono.. lo devo fare qui per un motivo di tempi inspiegabile,
+  // se lo faccio dopo l'AdaptFormListLayout o dentro la setScrollbar non funziona..
+  if (RD3_Glb.IsChrome() || RD3_Glb.IsSafari())
+  {
+    this.ContentBox.style.overflowX = "hidden";
+    this.ContentBox.style.overflowY = "hidden";
+  }
+  //
+  // Ridimensiono i contenitori del pannello in lista e in form
+  this.AdaptFormListLayout();
+  //
+  // Rimetto le scrollbar dove devo
+  this.SetScrollbar();
+  //
+  // Mostro/Nascondo bottone carica altre righe
+  if (this.MoreAreaBox)
+  {
+    this.MoreAreaBox.style.display = (this.TotalRows>this.NumRows)?"":"none";
+    if (this.IsMyScroll() && this.IDScroll)
+      this.IDScroll.MarginBottom = (this.TotalRows>this.NumRows)?40:0;
+    this.MoreButton.className = "panel-more-button";
+  }
+  //
+  // ora rimetto la listbox dal dom...
+  if (removeFromDOM)
+  {
+    if (restoreListInDom)
+      this.ContentBox.appendChild(this.ListBox);
+    //
+    // Devo riposizionare la scrollbar. Questa operazione l'ha sicuramente azzerata!
+    this.QbeScroll = true;
+    //
+    // Se nel rimuovere la listbox dal dom ho perso il fuoco, lo rimetto a posto!
+    if (refoc)
+    {
+      if (refoc.tagName == "DIV" && refoc.getAttribute("contenteditable") != "true")
+        RD3_KBManager.CheckFocus=true;
+      else
+        refoc.focus();
+    }
+  }
+  //
+  // Con queste righe di codice si fanno sparire
+  // le scrollbar che IE tende a mettere quando si rimpiccilisce lo spazio
+  // disponibile
+  // Se lo faccio durante un animazione di form/list e per caso il pannello ha le scrollbar queste righe fanno vedere per un istante la lista..
+  // Lo stesso succede durante un animazione di collassamento
+  if (!this.AnimatingPanel && !this.Collapsing)
+  {
+    var oldScrollTop = this.ContentBox.scrollTop;
+    this.ContentBox.scrollTop = oldScrollTop + 1000;
+    this.ContentBox.scrollTop = oldScrollTop;
+  }
+  //
+  // Comunico a IDScroll che portrebbe essere cambiata l'altezza... 
+  // ma non mentre sposto da lista a form e viceversa e poi solo se e' MIO
+  // se c'e' l'ha una combo che si sta spostando non va bene
+  if (this.IsMyScroll() && this.PullAreaBox && this.PanelMode==RD3_Glb.PANEL_LIST)
+  {
+    this.IDScroll.PullTrigger = -this.PullAreaBox.offsetTop+this.PullAreaBox.offsetHeight/2;
+    //
+    // Nel caso quadro esiste un'area coperta piu' grande, ma deve funzionare come prima
+    if (RD3_Glb.IsQuadro())
+      this.IDScroll.PullTrigger -= 40;
+  }
+  else if (this.IDScroll)
+    this.IDScroll.PullTrigger = 0;
+  //
+  if (this.IsMyScroll() && !this.AnimatingToolbar)
+   this.IDScroll.ChangeSize();
+  //
+  this.RecalcLayout = false;
+  this.SendResize = false;
+}
+
+
+
 //*************************************************************
 // Assistenza 000697-2013
 // Multiupload non renderizzato in caso di assenza di Flash
