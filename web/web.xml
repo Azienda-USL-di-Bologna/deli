@@ -52,9 +52,9 @@
 		<url-pattern>/IdoneitaParer.json/*</url-pattern>
 		<url-pattern>/IdoneitaParer.xml/*</url-pattern>
 		
-		<url-pattern>/AvviaIter/*</url-pattern>
-        <url-pattern>/AvviaIter.json/*</url-pattern>
-        <url-pattern>/AvviaIter.xml/*</url-pattern>
+		<url-pattern>/GestisciIter/*</url-pattern>
+        <url-pattern>/GestisciIter.json/*</url-pattern>
+        <url-pattern>/GestisciIter.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
