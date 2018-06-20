@@ -55,6 +55,10 @@
 		<url-pattern>/GestisciIter/*</url-pattern>
         <url-pattern>/GestisciIter.json/*</url-pattern>
         <url-pattern>/GestisciIter.xml/*</url-pattern>
+        
+        <url-pattern>/GestisciIterDeli/*</url-pattern>
+        <url-pattern>/GestisciIterDeli.json/*</url-pattern>
+        <url-pattern>/GestisciIterDeli.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
