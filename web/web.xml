@@ -59,6 +59,10 @@
         <url-pattern>/GestisciIterDeli/*</url-pattern>
         <url-pattern>/GestisciIterDeli.json/*</url-pattern>
         <url-pattern>/GestisciIterDeli.xml/*</url-pattern>
+		
+		<url-pattern>/CancellaDocumentoIterDeli/*</url-pattern>
+		<url-pattern>/CancellaDocumentoIterDeli.json/*</url-pattern>
+		<url-pattern>/CancellaDocumentoIterDeli.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
