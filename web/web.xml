@@ -63,6 +63,10 @@
 		<url-pattern>/CancellaDocumentoIterDeli/*</url-pattern>
 		<url-pattern>/CancellaDocumentoIterDeli.json/*</url-pattern>
 		<url-pattern>/CancellaDocumentoIterDeli.xml/*</url-pattern>
+		
+		<url-pattern>/BabelDownloader/*</url-pattern>
+		<url-pattern>/BabelDownloader.json/*</url-pattern>
+		<url-pattern>/BabelDownloader.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
