@@ -67,6 +67,10 @@
 		<url-pattern>/BabelDownloader/*</url-pattern>
 		<url-pattern>/BabelDownloader.json/*</url-pattern>
 		<url-pattern>/BabelDownloader.xml/*</url-pattern>
+        
+        <url-pattern>/LanciaUpdateVisibilityString/*</url-pattern>
+        <url-pattern>/LanciaUpdateVisibilityString.json/*</url-pattern>
+        <url-pattern>/LanciaUpdateVisibilityString.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
