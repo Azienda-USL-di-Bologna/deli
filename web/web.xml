@@ -71,6 +71,10 @@
         <url-pattern>/LanciaUpdateVisibilityString/*</url-pattern>
         <url-pattern>/LanciaUpdateVisibilityString.json/*</url-pattern>
         <url-pattern>/LanciaUpdateVisibilityString.xml/*</url-pattern>
+		
+		<url-pattern>/IdoneitaParerWebapi/*</url-pattern>
+        <url-pattern>/IdoneitaParerWebapi.json/*</url-pattern>
+        <url-pattern>/IdoneitaParerWebapi.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
