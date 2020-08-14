@@ -75,6 +75,10 @@
 		<url-pattern>/IdoneitaParerWebapi/*</url-pattern>
         <url-pattern>/IdoneitaParerWebapi.json/*</url-pattern>
         <url-pattern>/IdoneitaParerWebapi.xml/*</url-pattern>
+		
+		<url-pattern>/GestisciDestinatariDaRubricaInternauta/*</url-pattern>
+        <url-pattern>/GestisciDestinatariDaRubricaInternauta.json/*</url-pattern>
+        <url-pattern>/GestisciDestinatariDaRubricaInternauta.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
