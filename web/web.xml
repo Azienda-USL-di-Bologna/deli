@@ -84,6 +84,10 @@
 		<url-pattern>/WebApiRicalcolaPrendibilita/*</url-pattern>
         <url-pattern>/WebApiRicalcolaPrendibilita.json/*</url-pattern>
         <url-pattern>/WebApiRicalcolaPrendibilita.xml/*</url-pattern>
+		
+		<url-pattern>/RipubblicaAttivitaWebApi/*</url-pattern>
+        <url-pattern>/RipubblicaAttivitaWebApi.json/*</url-pattern>
+        <url-pattern>/RipubblicaAttivitaWebApi.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
