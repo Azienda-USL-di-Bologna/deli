@@ -46,6 +46,7 @@ ckeditor/skins/moono/images/lock-open.png
 ckeditor/skins/moono/images/refresh.png
 
 images/Categoria.png
+images/babel.jpg
 images/Sottoclasse.png
 images/Classe.png
 images/ImmagineIntestazionePagineSuccessive.gif
