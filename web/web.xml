@@ -79,6 +79,10 @@
 		<url-pattern>/GestisciDestinatariDaRubricaInternauta/*</url-pattern>
         <url-pattern>/GestisciDestinatariDaRubricaInternauta.json/*</url-pattern>
         <url-pattern>/GestisciDestinatariDaRubricaInternauta.xml/*</url-pattern>
+		
+		<url-pattern>/EliminaPropostaDaEdi/*</url-pattern>
+        <url-pattern>/EliminaPropostaDaEdi.json/*</url-pattern>
+        <url-pattern>/EliminaPropostaDaEdi.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
