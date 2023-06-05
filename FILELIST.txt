@@ -183,6 +183,7 @@ images/disk-save-yellow-icon.png
 images/Pen-Red-icon 40.png
 images/Pen-Red-icon 40-grey.png
 images/Crown-icon.png
+images/Ok-icon16.png
 
 
 modelli/firmispizio_deli.pdf
