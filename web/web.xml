@@ -48,6 +48,10 @@
 		<url-pattern>/DaFirmare.json/*</url-pattern>
 		<url-pattern>/DaFirmare.xml/*</url-pattern>
 		
+		<url-pattern>/CallBackFirmone/*</url-pattern>
+		<url-pattern>/CallBackFirmone.json/*</url-pattern>
+		<url-pattern>/CallBackFirmone.xml/*</url-pattern>	
+		
 		<url-pattern>/IdoneitaParer/*</url-pattern>
 		<url-pattern>/IdoneitaParer.json/*</url-pattern>
 		<url-pattern>/IdoneitaParer.xml/*</url-pattern>
