@@ -87,6 +87,10 @@
 		<url-pattern>/EliminaPropostaDaEdi/*</url-pattern>
         <url-pattern>/EliminaPropostaDaEdi.json/*</url-pattern>
         <url-pattern>/EliminaPropostaDaEdi.xml/*</url-pattern>
+		
+		<url-pattern>/GlogUtilitiesApi/*</url-pattern>
+        <url-pattern>/GlogUtilitiesApi.json/*</url-pattern>
+        <url-pattern>/GlogUtilitiesApi.xml/*</url-pattern>
     </servlet-mapping>
 	
 	<servlet>
