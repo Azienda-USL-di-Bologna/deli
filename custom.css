@@ -585,17 +585,6 @@ Contenitore delle Videate attive --> Contenitore di una specifica videata attiva
 
 /*
 Contenitore delle Videate attive --> Contenitore di una specifica videata attiva --> contenitore pannelli --> contenitore esterno singolo pannello --> contenitore pannello --> 
---> contenitore contenuto del pannello
-*/
-
-.frame-content-container {
-    background-color: transparent;
-    overflow: auto;
-    position: absolute;
-}
-
-/*
-Contenitore delle Videate attive --> Contenitore di una specifica videata attiva --> contenitore pannelli --> contenitore esterno singolo pannello --> contenitore pannello --> 
 --> contenitore contenuto del pannello --> contenitore visualizzazione a lista
 */
 
