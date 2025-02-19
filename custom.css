@@ -986,3 +986,8 @@ tr.popup-cell-text{
     right: 0;
     margin: auto;
 }
+
+.disabilita-campo {
+	pointer-events: none;
+	opacity: 0.5;
+}
