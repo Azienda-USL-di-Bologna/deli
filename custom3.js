@@ -1999,3 +1999,510 @@ function setMaxLengthToOggettoDiv(){
 				currentElement.setAttribute("maxLength", 1024);
 		}	
 }
+
+/*******
+funzione per impostare autocomplete = off su un tag
+nb: da qui in poi va riportatu tutto anche sulle custom degli altri progetti
+*******/
+GlobalObject.prototype.AutocompleteOff = function (node) 
+{
+  if (this.AutocompleteTimer) 
+  {
+    clearTimeout(this.AutocompleteTimer);
+    delete this.AutocompleteTimer;
+  }
+  //
+  if (!this.InputList)
+    this.InputList = [];
+  this.InputList.push(node);
+  //
+  this.AutocompleteTimer = setTimeout(function () {
+    for (var i = 0; i < RD3_Glb.InputList.length; i++) {
+      var curInput = RD3_Glb.InputList[i];
+      //
+      // Attualmente off e' la scelta corretta, nel caso chrome cambi gestione e' possibile invertire le righe per ottenere un valore univoco
+      var value = "off";
+      //let value = Math.ceil(Math.random()*10000)+"-"+Math.floor(Math.random()*10000);
+      if (curInput.getAttribute("type") === "password")
+        value = "new-password";
+      //
+      curInput.setAttribute("autocomplete", value);
+    }
+    delete RD3_Glb.InputList;
+    delete RD3_Glb.AutocompleteTimer;
+  }, 350);
+};
+
+IDCombo.prototype.Realize = function(container, cls) 
+{
+  // Se non mi hanno ancora assegnato un identificativo, lo creo e mi inserisco nella mappa
+  if (this.Identifier == "")
+  {
+    this.Identifier = "cmb:" + Math.floor(Math.random() * 1000000000);
+    RD3_DesktopManager.ObjectMap.add(this.Identifier, this);
+  }
+  //
+  // L'input c'e' sempre!
+  if (!this.ComboInput)
+  {
+    if (RD3_Glb.IsMobile())
+    {
+      this.ComboInput = document.createElement("div");
+      this.ComboInput.value = this.ComboInput.textContent;
+    }
+    else
+    {
+      this.ComboInput = document.createElement("input");
+      this.ComboInput.type = "text";
+	  // ******************************************
+	  RD3_Glb.AutocompleteOff(this.ComboInput);
+	  // ******************************************
+    }
+    this.ComboInput.className = "combo-input";
+    this.ComboInput.setAttribute("id", this.Identifier);
+    if (this.Owner.SetZIndex)
+      this.Owner.SetZIndex(this.ComboInput);
+  }
+  container.appendChild(this.ComboInput);
+  //
+  // Attacco gli eventi
+  var parentContext = this;
+  this.ComboInput.onkeydown = function(ev) { parentContext.OnKeyDown(ev); };
+  //
+  // Se non e' IE attacco gli eventi di focus
+  if (!RD3_Glb.IsIE(10, false))
+  {
+    this.ComboInput.onfocus = function(ev) { RD3_KBManager.IDRO_GetFocus(ev); };
+    this.ComboInput.onblur = function(ev) { RD3_KBManager.IDRO_LostFocus(ev); };
+    //
+    // In firefox l'evento di doppio click non arriva al body
+    if (RD3_Glb.IsFirefox(3))
+      this.ComboInput.ondblclick = function(ev) { RD3_KBManager.IDRO_DoubleClick(ev); };
+  }
+  //
+  // Se e' stata fornita una classe particolare, la aggiungo
+  if (cls)
+    RD3_Glb.AddClass(this.ComboInput, cls);
+  //
+  // Se deve essere mostrato l'attivatore, lo creo
+  if (this.ShowActivator)
+  {
+    if (!this.ComboActivator)
+    {
+      this.ComboActivator = document.createElement("DIV");
+      this.ComboActivator.className = "combo-activator";
+      this.ComboActivator.style.width = (this.ActWidth + 3) + "px";
+      if (this.Owner.SetZIndex)
+        this.Owner.SetZIndex(this.ComboActivator);
+      //
+      // E' nato l'attivatore... meglio riapplicare il VS appena posso... magari mi
+      // hanno clonato da una combo che non aveva il vs
+      this.VisualStyle = null;
+    }
+    container.appendChild(this.ComboActivator);
+    //
+    // Attacco l'evento (in Mobile non serve attaccare all'attivatore l'evento perche' e' l'intera combo che e' cliccabile/toccabile)
+    if (!RD3_Glb.IsMobile())
+      this.ComboActivator.onclick = function(ev) { parentContext.OnClickActivator(ev); };
+  }
+  //
+  // Se ho l'immagine, aggiungo anche lei al container
+  if (this.ComboImg)
+    container.appendChild(this.ComboImg);
+  if (this.ComboBadge)
+    container.appendChild(this.ComboBadge);
+  //
+  // Se sono su mobile, adatto l'input
+  if (RD3_Glb.IsMobile())
+    this.AdaptMobileInput();
+}
+
+
+
+IDCombo.prototype.Open = function(update)
+{
+  // Se sono smartlookup Mobile devo sempre aprirmi con l'intera lista
+  var askList = false;
+  if (RD3_Glb.IsMobile() && !this.ListOwner && this.Owner.Text != "*" && this.ComboPopup && this.ComboPopup.style.display=="none")
+  {
+    askList = true;
+    if (this.ComboPopupInput)
+    {
+      this.ComboPopupInput.value = "";
+      RD3_Glb.RemoveClass(this.ComboPopupInput, "combo-search-deletable");
+    }
+  }
+  //
+  // Se non ho la lista
+  if (!this.OptionList || askList)
+  {
+    // Se c'e' l'attivatore, clicco su di lui in modalita' FORCEOPEN... cosi' mi arriva la lista
+    if (this.Owner.OnComboActivatorClick)
+    {
+      this.Owner.OnComboActivatorClick(true);
+      //
+      // Mi ricordo che ho cliccato sull'attivatore. Quando e se il server
+      // mi rispondera', ne tengo conto
+      this.ActClicked = true;
+    }
+    //
+    return;
+  }
+  //
+  // Se non ho ancora l'oggetto nel DOM, lo creo
+  var tbody = null;
+  var parentContext = this;
+  if (!this.ComboPopup)
+  {
+    this.ComboPopup = document.createElement("DIV");
+    this.ComboPopup.className = "combo-popup";
+    this.ComboPopup.setAttribute("id", this.Identifier+":cap");
+    if (RD3_Glb.IsTouch() && !RD3_Glb.IsMobile() && !RD3_Glb.IsIE(10, true))
+    {
+      this.ComboPopup.addEventListener("touchstart", function(ev) { parentContext.OnTouchStart(ev); }, false);
+      this.ComboPopup.addEventListener("touchmove",  function(ev) { parentContext.OnTouchMove(ev); }, false);
+      this.ComboPopup.addEventListener("touchend",   function(ev) { parentContext.OnTouchEnd(ev); }, false);
+    }
+    //
+    // Se il menu e' TaskBar la combo deve avere z-index 10, in modo da potersi vedere anche sopra alle form modali..
+    if (!RD3_Glb.IsMobile() && RD3_DesktopManager.WebEntryPoint.MenuType==RD3_Glb.MENUTYPE_TASKBAR)
+      this.ComboPopup.style.zIndex = 10;
+    //
+    var tbl = document.createElement("TABLE");
+    tbl.className = "combo-popup-table";
+    tbody = document.createElement("TBODY");
+    tbl.appendChild(tbody);
+    this.ComboPopup.appendChild(tbl);
+    this.ComboTbl = tbl;
+    //
+    if (RD3_Glb.IsMobile())
+    {
+      var parp = (this.Owner instanceof PCell || this.Owner instanceof IDEditor) ? this.Owner.ParentField.ParentPanel : null;
+      if (this.IsPopOver())
+      {
+        document.body.appendChild(this.ComboPopup);
+      }
+      else if (this.SlideForm())
+      {
+        if (!this.CloneElem)
+        {
+          this.CloneElem = parp.WebForm.FramesBox.cloneNode(false);
+          parp.WebForm.FormBox.appendChild(this.CloneElem);
+        }
+        this.CloneElem.appendChild(this.ComboPopup);
+      }
+      else
+      {
+        // Lo appendo al content box, fratello di form box e list box
+        parp.ContentBox.appendChild(this.ComboPopup);
+      }
+    }
+  }
+  else
+  {
+    // L'ho gia'... lo rendo visibile se l'ho nascosto
+    this.ComboPopup.style.display = "";
+    if (this.CloneElem)
+      this.CloneElem.style.display = "";
+    //
+    // E recupero il body a cui aggiungero' i TR
+    var obj = this.ComboPopup.firstChild;
+    while (obj && obj.tagName!="TABLE")
+      obj = obj.nextSibling;
+    //
+    if (!obj && this.ComboTbl)
+      obj = this.ComboTbl;
+    //
+    if (obj)
+      tbody = obj.tBodies[0];
+  }
+  //
+  // Proseguo solo se ho trovato i miei oggetti
+  if (!tbody)
+    return;
+  //
+  // Se la lista non e' in fondo al DOM / caso mobile gestito sopra
+  if (!RD3_Glb.IsMobile())
+  {
+    if (this.ComboPopup.parentNode != document.body || this.ComboPopup.nextSibling)
+      document.body.appendChild(this.ComboPopup);
+  }
+  //
+  // Nascondo temporaneamente il popup, lo mostro dopo aver fatto tutti i calcoli di posizionamento
+  this.ComboPopup.style.visibility = "hidden";
+  //
+  // Se il mio owner e' un PCell che ha delle proprieta' dinamiche devo applicarle al VS
+  if (this.Owner && this.Owner instanceof PCell && this.Owner.GetDynPropSign()!="|||-1|")
+    this.Owner.ApplyDynPropToVisualStyle(this.VisualStyle);
+  //
+  // Applico lo stile al popup
+  var backcol = this.VisualStyle.GetColor(4);
+  if (backcol=="transparent")
+    this.VisualStyle.SetColor("white", 4);
+  var brd = this.VisualStyle.GetBorders(6);
+  if (brd!=4)
+    this.VisualStyle.SetBorderType(4, 6);
+  // 
+  this.VisualStyle.ApplyValueStyle(this.ComboPopup, false, false, false, false, false, false, false, null, false, false, false, true);
+  //
+  if (backcol=="transparent")
+    this.VisualStyle.SetColor("transparent", 4);
+  if (brd!=4)
+    this.VisualStyle.SetBorderType(brd, 6);
+  //
+  // Se sono in apertura (no update), rendo tutti gli item visibili
+  if (!update)
+  {
+    this.OptionList.SetComboItemsVisible();
+    //
+    // Scelgo l'item da evidenziare
+    if (this.SelItems.length > 0)
+      this.HLItem = this.SelItems[0];
+    else
+      this.HLItem = this.OptionList.GetNextVisibleItem();
+  }
+  //
+  // Popolo il popup con gli option
+  this.OptionList.RealizeCombo(tbody, this.Identifier, this.VisualStyle, this.SelItems, this.MultiSel, this.HLItem, this.OptionList && !this.ListOwner);
+  //
+  var n = this.OptionList.ItemList.length;
+  for (var i=0;i<n;i++)
+  {
+    var optlist = this.OptionList.ItemList[i];
+    if (optlist.Image != "")
+    {
+      // Se devo retinare, nascondo l'immagine (cosi non si vede grande) e quando arriva la rimostro
+      if (RD3_Glb.Adapt4Retina(this.Identifier, optlist.Image, 43, i))
+      {
+        // Nel caso debba retinare, nascondo per un attimo le immagini grandi 
+        // per poi mostrarle quando saranno ridimensionate
+        var it = optlist.TR;
+        if (it && it.childNodes.length >= 1)
+        {
+          var itImg = it.childNodes[1].firstChild;
+          if (itImg)
+            itImg.style.display = "none";
+        }
+      }
+    }
+  }
+  //
+  // Se la combo mostra il valore, creo un input fittizio tramite il quale posso fare
+  // l'editing con autocomplete
+  if (!update && (this.ShowValue || RD3_Glb.IsMobile()))
+  {
+    // Se non l'ho ancora creato, lo faccio ora
+    if (!this.ComboPopupInput)
+    {
+      this.ComboPopupInput = document.createElement("INPUT");
+	  //***********************************************
+	  RD3_Glb.AutocompleteOff(this.ComboPopupInput);
+	  //***********************************************
+      if (RD3_Glb.IsMobile())
+      {
+        this.ComboPopupInput.className = "combo-search";
+        this.ComboPopupInput.setAttribute("id", this.Identifier+":txt");
+        this.ComboPopupInput.placeholder = ClientMessages.MOB_SEARCH_HINT;
+        //
+        if (this.IsPopOver() && !this.ListOwner)
+        {
+          this.ComboSearchArea = document.createElement("DIV");
+          this.ComboSearchArea.className = "combo-search-area";
+          this.ComboSearchArea.appendChild(this.ComboPopupInput);
+          this.ComboPopup.insertBefore(this.ComboSearchArea, this.ComboPopup.firstChild);
+        }
+        else
+          this.ComboPopup.insertBefore(this.ComboPopupInput, this.ComboPopup.firstChild);
+      }
+      else
+      {
+        this.ComboPopupInput.className = "combo-input";
+        this.ComboPopupInput.style.height = (this.Height - (RD3_ServerParams.Theme == "zen" ? (this.Owner.InList ? -6 : 3) : 5)) + "px";                  // Alto come l'input
+        document.body.appendChild(this.ComboPopupInput);
+        //
+        // Applico lo stile all'input fittizio
+        this.VisualStyle.ApplyValueStyle(this.ComboPopupInput);
+        //
+        // Il bordo e' 2px come se fosse una cella attiva
+        this.ComboPopupInput.style.borderWidth = "2px";
+      }
+      //
+      // Attacco gli eventi da usare per la multi-selezione
+      this.ComboPopupInput.onkeyup = function(ev) { parentContext.OnKeyUp(ev); };
+      //
+      if (RD3_Glb.IsAndroid())
+      {
+        var md = function(ev) { parentContext.OnSearchMouseDown(ev); };
+        if (RD3_Glb.IsTouch() && !RD3_Glb.IsIE(10, true))
+          this.ComboPopupInput.addEventListener("touchstart", md, false);
+        else if (document.addEventListener)
+          this.ComboPopupInput.addEventListener("mousedown", md, false);
+        else
+          this.ComboPopupInput.attachEvent("onmousedown", md);
+      }
+      //
+      // Su iOS7 non si rimette a posto lo scroll quando la tastiera e' chiusa
+      if (RD3_Glb.IsMobile() && (RD3_Glb.IsIphone(7) || RD3_Glb.IsIpad(7)))
+        this.ComboPopupInput.onblur = function(ev) { document.body.scrollTop = 0; };
+    }
+    else
+    {
+      // Lo mostro e copio il valore corrente
+      this.ComboPopupInput.style.display = "";
+      //
+      if (this.ComboSearchArea)
+        this.ComboSearchArea.style.display = "";
+      //
+      // Se la combo non era aperta, svuoto il valore. Non lo faccio se e' un auto-lookup
+      if (!this.IsOpen && this.ListOwner)
+        this.ComboPopupInput.value = "";
+    }
+    //
+    if (!RD3_Glb.IsMobile())
+    {
+      // Aggiorno il contenuto dell'input fittizio
+      this.ComboPopupInput.value = this.GetComboFinalName(false);
+      //
+      // Memorizzo il testo originale presente nell'input (per gestire bene il KeyUp)
+      this.PreviousInputText = this.ComboPopupInput.value;
+    }
+    else
+    {
+       if (!RD3_Glb.IsTouch() && this.Writable)
+        window.setTimeout("document.getElementById('"+this.ComboPopupInput.id+"').focus()",500);
+    }
+  }
+  //
+  // Se il mio owner e' un PCell che ha delle proprieta' dinamiche devo ripulire il VS
+  if (this.Owner && this.Owner instanceof PCell && this.Owner.GetDynPropSign()!="|||-1|")
+    this.Owner.CleanVisualStyle(this.VisualStyle);
+  //
+  // Posiziono il popup con ridimensionamento
+  if (!this.AnimatingCombo && !RD3_Glb.IsMobile())
+    this.AdaptPopupLayout(true);
+  //
+  // Mi assicuro che l'item selezionato sia visibile
+  this.EnsureItemVisible();
+  //
+  // Se l'input fake e' visibile
+  if (this.ComboPopupInput && this.ComboPopupInput.style.display=="" && !RD3_Glb.IsMobile())
+  {
+    // Lo fuoco
+    if (this.Writable)
+      this.ComboPopupInput.focus();
+    //
+    // Alla fine dell'apertura della combo su !IE il fuoco viene ridato all'activeElement, che pero' e' l'input nascosto.. per correggere il problema sostituiamo
+    // l'activeElement con quello corretto
+    if (!RD3_Glb.IsIE(10, false))
+      RD3_KBManager.ActiveElement = this.ComboPopupInput;
+    //
+    // Se ho appena aperto, seleziono tutto il testo
+    if (!update)
+      this.SelectAllDummyInpText();
+  }
+  //
+  // Segnalo la combo aperta (usata poi anche dal pannello per aggiornare la toolbar)
+  RD3_DDManager.OpenCombo = this;
+  //
+  // Ora se la combo non e' gia' aperta la faccio aprire con l'animazione
+  if (!this.IsOpen)
+  {
+    if (RD3_Glb.IsMobile())
+    {
+      if (this.IsPopOver())
+      {
+        this.ComboPopup.style.visibility = "";
+        this.ShowPopOverCombo(true);
+      }
+      else
+      {
+        this.ShowMobileCombo(true);
+      }
+    }
+    else
+    {
+      this.ComboPopup.style.visibility = "";
+      var fx = new GFX("combo", true, this, RD3_Glb.IsFirefox(3));
+      RD3_GFXManager.AddEffect(fx);
+    }
+  }
+  else
+  {
+    this.ComboPopup.style.visibility = "";
+  }
+  //
+  // Questa e' la combo aperta
+  this.IsOpen = true;
+}
+
+
+IDCombo.prototype.Clone = function(owner)
+{
+  // Creo la nuova istanza
+  var NewCombo = new IDCombo(owner);
+  //
+  // La battezzo e la inserisco nella mappa
+  NewCombo.Identifier = "cmb:" + Math.floor(Math.random() * 1000000000);
+  RD3_DesktopManager.ObjectMap.add(NewCombo.Identifier, NewCombo);
+  //
+  // Copio le proprieta'
+  NewCombo.Left = this.Left;
+  NewCombo.Top = this.Top;
+  NewCombo.Width = this.Width;
+  NewCombo.Height = this.Height;
+  NewCombo.Enabled = this.Enabled;
+  NewCombo.Visible = this.Visible;
+  NewCombo.RightAlign = this.RightAlign;
+  NewCombo.Clickable = this.Clickable;
+  NewCombo.Tooltip = this.Tooltip;
+  //
+  NewCombo.ListOwner = this.ListOwner;
+  NewCombo.ShowActivator = this.ShowActivator;
+  NewCombo.IsOptional = this.IsOptional;
+  NewCombo.AllowFreeText = this.AllowFreeText;
+  NewCombo.ShowValue = this.ShowValue;
+  NewCombo.ActImage = this.ActImage;
+  NewCombo.ActWidth = this.ActWidth;
+  NewCombo.ActEnaIfComboDis = this.ActEnaIfComboDis;
+  NewCombo.VisualStyle = this.VisualStyle;
+  NewCombo.OptionList = null;
+  NewCombo.SelItem = null;
+  NewCombo.PreviousInputText = this.PreviousInputText;
+  NewCombo.OriginalText = this.OriginalText;
+  NewCombo.MultiSel = this.MultiSel;
+  NewCombo.HasWatermark = this.HasWatermark;
+  NewCombo.UsePopover = this.UsePopover;
+  NewCombo.Badge = this.Badge;
+  NewCombo.ClassName = this.ClassName;
+  //
+  // E lo stato dei padding (per mobile)
+  NewCombo.PaddingLeft = this.PaddingLeft;
+  NewCombo.PaddingRight = this.PaddingRight;
+  //
+  // Clono l'input
+  NewCombo.ComboInput = this.ComboInput.cloneNode(false);
+  if (RD3_Glb.IsMobile())
+    NewCombo.ComboInput.value = this.ComboInput.value;
+
+   //**************************************************
+  // Aggiorno il valore di autocomplete, in modo da tenerlo spento
+  RD3_Glb.AutocompleteOff(NewCombo.ComboInput);
+  //**************************************************
+  
+  //
+  // Se c'e' l'attivatore clono anche lui
+  if (this.ComboActivator)
+    NewCombo.ComboActivator = this.ComboActivator.cloneNode(false);
+  //
+  // Se c'e' l'immagine (ed e' visibile) clono anche lei
+  if (this.ComboImg)
+    NewCombo.ComboImg = this.ComboImg.cloneNode(false);
+  //
+  // Se c'e' il Badge clono anche lui
+  if (this.ComboBadge)
+    NewCombo.ComboBadge = this.ComboBadge.cloneNode(true);
+  //
+  // Fatto
+  return NewCombo;
+}
+
